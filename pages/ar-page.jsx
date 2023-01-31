@@ -12,6 +12,7 @@ import { BACKEND_API_URL } from "../config";
 import { io } from "socket.io-client";
 import { useState, useEffect } from "react";
 import Button from "../Components/Button";
+import HealthBar from "../Components/HealthBar";
 
 const ArPage = () => {
   const [earnedPoints, setEarnedPoints] = useState(0);
@@ -19,6 +20,11 @@ const ArPage = () => {
   const [isActive, setIsActive] = useState(false);
   const [gamerOver, setGameOver] = useState(false);
   const IFRAME_ID = "my-iframe";
+
+  const [name, setName] = useState("");
+  const [rooms, setRooms] = useState(null);
+  const [characters, setCharacters] = useState({});
+  const [entities, setEntities] = useState({});
 
   //useEffect(() => {
   //  async function fetchQuests() {
@@ -36,9 +42,29 @@ const ArPage = () => {
 
   useEffect(() => {
     window.io = io(BACKEND_API_URL);
-    window.io.emit("identity", "633fa6aff39768bdb85d0414");
+
     window.io.on("connect", () => {
       console.log(`${"633fa6aff39768bdb85d0414"} connected to WebSocket!`);
+    });
+    window.io.on("log", (arg) => {
+      console.log("LOG RESPONSE", arg);
+    });
+    window.io.on("characters-update", (characters) => {
+      console.log("characters-update", characters);
+      setCharacters(characters);
+    });
+    window.io.on("entities-update", (entities) => {
+      console.log("entities-update", entities);
+      setEntities(entities);
+    });
+
+    //window.io.emit("identity", "633fa6aff39768bdb85d0414");
+    //window.io.emit("subscribe", "ONE", ["633fa6aff39768bdb85d0414"]);
+    window.io.emit("sync-gamestate", (response) => {
+      console.log("WARRIOR", response.characters[0]);
+      console.log("GOBLIN", response.entities[0]);
+      setCharacters(response.characters);
+      setEntities(response.entities);
     });
   }, []);
 
@@ -99,22 +125,45 @@ const ArPage = () => {
         </IconButton>
       </Link>
       <Container fluid mt={8}>
-        <Grid fluid justifyItems={"center"}>
-          <Button
-            size={"md"}
-            icon={<ArrowBackIcon />}
-            onPress={() => {
-              console.log("YEET");
-            }}
-          >
-            {"LOG"}
-          </Button>
-          <GridItem>
-            Time Remaining: {seconds}
-            <br />
-            Points: {earnedPoints}
-          </GridItem>
-        </Grid>
+        <input
+          type="text"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+        />
+        <Button
+          label={"Identity"}
+          onClick={() => window.io.emit("identity", name)}
+        />
+        <Button
+          label={"Join room ONE"}
+          onClick={() => window.io.emit("subscribe", "ONE", [name])}
+        />
+        <Button label={"Log gamestate"} onClick={() => window.io.emit("log")} />
+        <Button
+          label={"Print rooms"}
+          onClick={() => window.io.emit("print-rooms")}
+        />
+        <Button
+          label={"Clear"}
+          onClick={() => window.io.emit("clear", "ONE")}
+        />
+        <Button
+          label={"Attack"}
+          onClick={() => {
+            window.io.emit("attackPlayer", 0, 20);
+            const optimisticUpdate = { ...characters };
+            optimisticUpdate[0].health -= 20;
+            setCharacters(optimisticUpdate);
+          }}
+        />
+        <div className={`w-full mt-4`}>
+          <HealthBar character={characters[0]} />
+          {Object.keys(characters)
+            .slice(1)
+            .map((playerId) => (
+              <HealthBar character={characters[playerId]} partyMember />
+            ))}
+        </div>
         <Center>
           <Box
             // style={{ height: "75vh", width: "100vw" }}

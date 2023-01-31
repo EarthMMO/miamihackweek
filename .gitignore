@@ -28,3 +28,6 @@ localhost.pem
 !.vscode/launch.json
 !.vscode/extensions.json
 .history/*
+
+# Misc
+.DS_Store

@@ -1,14 +1,15 @@
-import { ChakraProvider } from '@chakra-ui/react';
-import Head from 'next/head';
-import Layout from '../Components/Layout';
+import "../css/global.css";
+import { ChakraProvider } from "@chakra-ui/react";
+import Head from "next/head";
+import Layout from "../Components/Layout";
 import {
   EthereumClient,
   modalConnectors,
   walletConnectProvider,
-} from '@web3modal/ethereum';
-import { Web3Modal } from '@web3modal/react';
-import { configureChains, createClient, WagmiConfig } from 'wagmi';
-import { mainnet, polygon } from 'wagmi/chains';
+} from "@web3modal/ethereum";
+import { Web3Modal } from "@web3modal/react";
+import { configureChains, createClient, WagmiConfig } from "wagmi";
+import { mainnet, polygon } from "wagmi/chains";
 
 const App = ({ Component, pageProps }) => {
   const chains = [mainnet, polygon];
@@ -22,7 +23,7 @@ const App = ({ Component, pageProps }) => {
 
   const wagmiClient = createClient({
     autoConnect: true,
-    connectors: modalConnectors({ appName: 'web3Modal', chains }),
+    connectors: modalConnectors({ appName: "web3Modal", chains }),
     provider,
   });
 
