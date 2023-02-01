@@ -3,8 +3,10 @@ import { useAccount } from 'wagmi'
 import { Container, Spinner, Box, Grid, GridItem } from '@chakra-ui/react';
 import { useWeb3AuthHook } from '../utils/web3AuthContext';
 import { use, useEffect } from 'react';
+import GoblinMap from './GoblinMap';
 import Head from 'next/head';
 import Map, {Marker} from 'react-map-gl';
+
 
 const Homepage = () => {
 
@@ -43,26 +45,7 @@ const Homepage = () => {
   if (isDisconnected || !w3aAddress) {
     return (
     <Layout>
-      <Head>
-        <link href='https://api.mapbox.com/mapbox-gl-js/v2.8.1/mapbox-gl.css' rel='stylesheet' />
-      </Head>
-      <Map
-        initialViewState={{
-          latitude: 25.791437,
-          longitude: -80.194324,
-          zoom: 14
-        }}
-        style={{width: 800, height: 600}}
-        mapStyle="mapbox://styles/mapbox/streets-v9"
-        mapboxAccessToken="pk.eyJ1IjoianJlZGJveXoiLCJhIjoiY2xka3JvN2s5MHB1ODNybXM1dHJzbnlidyJ9.QgPoymDkVG1RuMlaWo2BPw"
-      >
-        <Marker
-        longitude={-80.1999636}
-        latitude={25.799933}>
-          <img src={"https://www.svgrepo.com/show/322436/goblin-head.svg"} width="50" height="50"/>
-      </Marker>
-      </Map>
-
+      <GoblinMap />
     </Layout>
     )
   }
