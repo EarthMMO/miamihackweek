@@ -45,6 +45,11 @@ const App = ({ Component, pageProps }) => {
           src="//cdn.8thwall.com/web/aframe/aframe-physics-system-4.0.1.min.js"
         ></script>
 
+        <script 
+        defer
+        src="//cdn.8thwall.com/web/aframe/aframe-extras-6.1.1.min.js"
+        ></script>
+
         {/* <!-- XR Extras - provides utilities like load screen, almost there, and error handling.
           See github.com/8thwall/web/tree/master/xrextras --> */}
         <script defer src="//cdn.8thwall.com/web/xrextras/xrextras.js"></script>

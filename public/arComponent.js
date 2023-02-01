@@ -1,5 +1,6 @@
 AFRAME.registerComponent("spotxcomponent", {
   addCoins(level) {
+    console.log("addCoins Func");
     if (level > 3) {
       return;
     }
@@ -206,11 +207,83 @@ AFRAME.registerComponent("spotxcomponent", {
     console.log("HELLO WORLD", someData);
     let world = window.state;
     console.log("STATE", world);
-    world.level[1].round_coins = 3;
-    world.level[2].round_coins = 3;
-    world.level[3].round_coins = 3;
+    // world.level[1].round_coins = 3;
+    // world.level[2].round_coins = 3;
+    // world.level[3].round_coins = 3;
+  },
+  processCombat() {
+    /*
+
+      Stage 1 combat correlates to the combat stage and does the setup for the hitbox,
+      and calls aux functions to handle different aspects.
+
+      This Function will be ran once
+    */
+
+    // start of game
+    this.gameStart();
+
+    console.log("AR Combat");
+    // Grab game state
+    let world = window.GameState;
+
+    // Create hitbox for mine.
+    const hitbox = document.createElement("a-entity");
+    const geometry = `primitive: sphere; radius: ${world.goblin.hitbox_radius}`;
+    var material = "";
+
+    if (world.debug) {
+      material = "color:#196F3D;transparent:true;opacity:0.3";
+    } else {
+      material = "color:#196F3D;transparent:true;opacity:0";
+    }
+
+    hitbox.setAttribute("geometry", geometry);
+    hitbox.setAttribute("material", material);
+    hitbox.setAttribute("position", `${world.goblin.x} ${world.goblin.y + 10} ${world.goblin.z}`);
+    hitbox.setAttribute("class", "cantap");
+    hitbox.setAttribute("visible", "true");
+
+    // Add items to the mine object.
+    this.el.sceneEl.appendChild(hitbox);
+
+    // Add Click listener to hitbox.
+    hitbox.addEventListener("click", (event) => {
+
+      // // Play sound
+      // const mine_audio = document.querySelector(
+      //   world.mine.stage[stage_lvl].sound
+      // ).components.sound;
+      // //let mine_audio = document.querySelector(world.mine.stage[(stage_lvl + 1)].sound);
+      // mine_audio.playSound();
+
+      // Coins component from mine click
+      // this.addCoins(stage_lvl);
+
+      // // Check if there is a next stage.
+      // if (world.mine.stage.hasOwnProperty(stage_lvl + 1)) {
+      //   world.mine.stage[stage_lvl + 1].clickable = true;
+
+      //   let next_mine = document.getElementById(
+      //     world.mine.stage[stage_lvl + 1].name
+      //   );
+      //   next_mine.setAttribute("visible", "true");
+      //   world.current_stage = stage_lvl + 1;
+
+      //   // Move to next stage.
+      //   world.move_stage = true;
+      // }
+      // let current_mine = document.getElementById(
+      //   world.mine.stage[stage_lvl].name
+      // );
+      // current_mine.setAttribute("visible", "false");
+
+      // Remove this hitbox, to make way for next hitbox.
+      this.el.sceneEl.removeChild(hitbox);
+    });
   },
   processMine() {
+    console.log("processMine Func");
     // Grab game state
     let world = window.state;
     let stage_lvl = world.current_stage;
@@ -287,8 +360,18 @@ AFRAME.registerComponent("spotxcomponent", {
       this.el.sceneEl.removeChild(hitbox);
     });
   },
-  mineStageController(td) {
-    let world = window.state;
+  StageController(td) {
+    /* 
+      Handle Stage switches here.
+      This will controller the switching the scene idle, play, etc
+      Goblin Combat,
+      or Goblin dead waiting to respond
+
+    */
+    //console.log("StageController FUNC");
+    let world = window.GameState;
+
+    // Singleton in a async process
     if (world.move_stage) {
       if (world.moving_timer > 0) {
         world.moving_timer -= td;
@@ -297,10 +380,20 @@ AFRAME.registerComponent("spotxcomponent", {
       world.moving_timer = world.moving_time;
       world.move_stage = false;
 
-      this.processMine();
+      if (world.stage_list[world.current_stage].goblin_alive){
+        // Goblin alive.
+        this.processCombat();
+      }
     }
+    
+    
   },
   gameStart() {
+    /*
+      Player has started their interaction with the stage 1 goblin. Tell React that they are enaging
+
+    */
+    console.log("gameStart FUNC");
     let startEvent = new Event("gameStart");
     window.parent.dispatchEvent(startEvent);
   },
@@ -313,6 +406,31 @@ AFRAME.registerComponent("spotxcomponent", {
     window.parent.dispatchEvent(evtObj);
   },
   init() {
+    console.log("INIT FUNC");
+
+
+    window.GameState = {
+      debug: true,
+      current_stage: 1,
+      moving_timer: 0,
+      moving_time: 0.5,
+      move_stage: true,
+      stage_list: {
+        1: {
+          goblin_alive: true,
+        },
+        2: {
+          goblin_alive: false,
+        }
+      },
+      goblin:{
+        hitbox_radius: 5,
+        x: 0,
+        y: 2,
+        z: -16,
+      }
+    };
+
     window.state = {
       mine: {
         stage: {
@@ -409,8 +527,12 @@ AFRAME.registerComponent("spotxcomponent", {
     //});
   },
   tick(time, timeDelta) {
+    /*
+      Update every tick of the AR.
+
+    */
     // normalize timeDelta (ms)
     var td = timeDelta / 1000;
-    this.mineStageController(td);
+    this.StageController(td);
   },
 });
