@@ -13,6 +13,7 @@ import { io } from "socket.io-client";
 import { useState, useEffect } from "react";
 import Button from "../Components/Button";
 import HealthBar from "../Components/HealthBar";
+import randomName from "random-name";
 
 const ArPage = () => {
   const [earnedPoints, setEarnedPoints] = useState(0);
@@ -44,11 +45,12 @@ const ArPage = () => {
       setEntities(entities);
     });
 
-    //window.io.emit("identity", "633fa6aff39768bdb85d0414");
-    //window.io.emit("subscribe", "ONE", ["633fa6aff39768bdb85d0414"]);
+    const randomFirstName = randomName.first();
+    window.io.emit("identity", randomFirstName);
+    window.io.emit("subscribe", "ONE", [randomFirstName]);
     window.io.emit("sync-gamestate", (response) => {
-      console.log("WARRIOR", response.characters[0]);
-      console.log("GOBLIN", response.entities[0]);
+      console.log("CHARACTERS", response.characters);
+      console.log("ENTITIES", response.entities);
       setCharacters(response.characters);
       setEntities(response.entities);
     });
@@ -66,6 +68,7 @@ const ArPage = () => {
     const handler = (event) => {
       //let pts = Math.min(event.detail.coinPoints * 100, 4500);
       console.log("react attack recieved!", event.detail.attack);
+      attackEntity();
       //setEarnedPoints(pts);
     };
 
@@ -103,6 +106,28 @@ const ArPage = () => {
     return () => clearInterval(interval);
   }, [isActive, seconds]);
 
+  function attackCharacter() {
+    const characterId = 0;
+    const ENTITY_DAMAGE = 20;
+    window.io.emit("attackCharacter", characterId, ENTITY_DAMAGE);
+    //setCharacters((prevCharacters) => {
+    //  const optimisticUpdate = { ...prevCharacters };
+    //  optimisticUpdate[characterId].health -= ENTITY_DAMAGE;
+    //  return optimisticUpdate;
+    //});
+  }
+
+  function attackEntity() {
+    const entityId = 0;
+    const CHARACTER_DAMAGE = 86;
+    window.io.emit("attackEntity", entityId, CHARACTER_DAMAGE);
+    //setEntities((prevEntities) => {
+    //  const optimisticUpdate = { ...prevEntities };
+    //  optimisticUpdate[entityId].health -= CHARACTER_DAMAGE;
+    //  return optimisticUpdate;
+    //});
+  }
+
   return (
     <>
       <Link href="/">
@@ -111,6 +136,7 @@ const ArPage = () => {
         </IconButton>
       </Link>
       <Container fluid mt={8}>
+        {/*
         <input
           type="text"
           value={name}
@@ -124,24 +150,21 @@ const ArPage = () => {
           label={"Join room ONE"}
           onClick={() => window.io.emit("subscribe", "ONE", [name])}
         />
-        <Button label={"Log gamestate"} onClick={() => window.io.emit("log")} />
-        <Button
-          label={"Print rooms"}
-          onClick={() => window.io.emit("print-rooms")}
-        />
         <Button
           label={"Clear"}
           onClick={() => window.io.emit("clear", "ONE")}
         />
+        */}
         <Button
-          label={"Attack"}
-          onClick={() => {
-            window.io.emit("attackPlayer", 0, 20);
-            const optimisticUpdate = { ...characters };
-            optimisticUpdate[0].health -= 20;
-            setCharacters(optimisticUpdate);
-          }}
+          label={"Print rooms"}
+          onClick={() => window.io.emit("print-rooms")}
         />
+        <Button label={"Log gamestate"} onClick={() => window.io.emit("log")} />
+        <Button
+          label={"Reset gamestate"}
+          onClick={() => window.io.emit("reset-gamestate")}
+        />
+        <Button label={"Attack character"} onClick={attackCharacter} />
         {/*
         <Button
           label={"IFrame Event"}
@@ -159,14 +182,21 @@ const ArPage = () => {
           }}
         />
         */}
-        <div className={`w-full mt-4`}>
-          <HealthBar character={characters[0]} />
-          {Object.keys(characters)
-            .slice(1)
-            .map((playerId) => (
-              <HealthBar character={characters[playerId]} partyMember />
+        <span className={`flex flex-row mt-4 justify-between`}>
+          <div className={`w-full flex justify-start`}>
+            <HealthBar character={characters[0]} />
+            {Object.keys(characters)
+              .slice(1)
+              .map((playerId) => (
+                <HealthBar character={characters[playerId]} partyMember />
+              ))}
+          </div>
+          <div className={`w-full flex justify-end`}>
+            {Object.keys(entities).map((entityId) => (
+              <HealthBar character={entities[entityId]} enemy />
             ))}
-        </div>
+          </div>
+        </span>
         <Center>
           <Box
             // style={{ height: "75vh", width: "100vw" }}
