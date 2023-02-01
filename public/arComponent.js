@@ -1,5 +1,34 @@
 AFRAME.registerComponent('MHW', {
+  goblinMode() {
+    console.log("Goblin Mode")
+
+    let world = this.state;
+    world.debug = true;
+
+    // Game Updates.
+    this.gameUpdate();
+
+    // =================
+    // Create Goblin 
+    const bossGoblin = document.createElement('a-entity');
+
+    // setup attributes
+    bossGoblin.setAttribute('class', 'cantap'); // Can Tap element
+    bossGoblin.setAttribute('gltf-model', '#Goblin'); // Set model
+
+
+    bossGoblin.addEventListener('model-loaded', (event) => {
+      console.log("Clicked Goblin");
+      this.gameStart();
+    });
+
+    // Add items to the mine object.
+    this.el.sceneEl.appendChild(bossGoblin); // Add coin to scene
+
+  },
+
   addCoins(level) {
+    console.log("START AR")
     if (level > 3) {
       return;
     }
@@ -35,22 +64,7 @@ AFRAME.registerComponent('MHW', {
 
 
 
-        // =================
-        // Create Goblin 
-        const bossGoblin = document.createElement('a-entity');
-
-        // setup attributes
-        bossGoblin.setAttribute('class', 'cantap'); // Can Tap element
-        bossGoblin.setAttribute('gltf-model', '#Goblin'); // Set model
-
-
-        bossGoblin.addEventListener('model-loaded', (event) => {
-          console.log("Clicked Goblin");
-          this.gameStart();
-        });
-
-        // Add items to the mine object.
-        this.el.sceneEl.appendChild(bossGoblin); // Add coin to scene
+       
 
         // ==================
         // Create on the fly hitbox element
@@ -261,101 +275,136 @@ AFRAME.registerComponent('MHW', {
       }, Math.random() * world.shooting_speed);
     }
   },
-  ARCombat() {
-    console.log(" Ar Combat")
-    //this.gameStart();
-  },
-  // processMine() {
-  //   // Grab game state
-  //   let world = this.state;
-  //   let stage_lvl = world.current_stage;
-
-  //   // Check if past last stage.
-  //   if (stage_lvl > 3) {
-  //     //console.log("Last stage already reached.");
-  //     return;
-  //   }
-
-  //   // check if clickable
-  //   if (!world.mine.stage[stage_lvl].clickable) {
-  //     return;
-  //   }
-
-  //   // Create hitbox for mine.
-  //   const hitbox = document.createElement('a-entity');
-  //   const geometry = `primitive: sphere; radius: ${world.mine.hitbox_radius}`;
-  //   var material = '';
-
-  //   if (world.debug) {
-  //     material = 'color:#196F3D;transparent:true;opacity:0.3';
-  //   } else {
-  //     material = 'color:#196F3D;transparent:true;opacity:0';
-  //   }
-
-  //   hitbox.setAttribute('geometry', geometry);
-  //   hitbox.setAttribute('material', material);
-  //   hitbox.setAttribute('position', `${world.mine.x} 0 ${world.mine.z}`);
-  //   hitbox.setAttribute('class', 'cantap');
-  //   hitbox.setAttribute('visible', 'true');
-
-  //   // Add items to the mine object.
-  //   this.el.sceneEl.appendChild(hitbox);
-
-  //   // Add Click listener to hitbox.
-  //   hitbox.addEventListener('click', (event) => {
-  //     if (stage_lvl == 1) {
-  //       // start of game
-  //       this.gameStart();
-  //     }
-
-  //     // Play sound
-  //     const mine_audio = document.querySelector(
-  //       world.mine.stage[stage_lvl].sound
-  //     ).components.sound;
-  //     //let mine_audio = document.querySelector(world.mine.stage[(stage_lvl + 1)].sound);
-  //     mine_audio.playSound();
-
-  //     world.mine.stage[stage_lvl].clickable = false;
-
-  //     // Coins component from mine click
-  //     this.addCoins(stage_lvl);
-
-  //     // Check if there is a next stage.
-  //     if (world.mine.stage.hasOwnProperty(stage_lvl + 1)) {
-  //       world.mine.stage[stage_lvl + 1].clickable = true;
-
-  //       let next_mine = document.getElementById(
-  //         world.mine.stage[stage_lvl + 1].name
-  //       );
-  //       next_mine.setAttribute('visible', 'true');
-  //       world.current_stage = stage_lvl + 1;
-
-  //       // Move to next stage.
-  //       world.move_stage = true;
-  //     }
-  //     let current_mine = document.getElementById(
-  //       world.mine.stage[stage_lvl].name
-  //     );
-  //     current_mine.setAttribute('visible', 'false');
-
-  //     // Remove this hitbox, to make way for next hitbox.
-  //     this.el.sceneEl.removeChild(hitbox);
-  //   });
-  // },
-
-
-  mineStageController(td) {
+  
+  processMine() {
+    // Grab game state
     let world = this.state;
-    if (world.move_stage) {
-      if (world.moving_timer > 0) {
-        world.moving_timer -= td;
-        return;
-      }
-      world.moving_timer = world.moving_time;
-      world.move_stage = false;
+    let stage_lvl = world.current_stage;
 
-      this.ARCombat();
+    // Check if past last stage.
+    if (stage_lvl > 3) {
+      //console.log("Last stage already reached.");
+      return;
     }
+
+    // check if clickable
+    if (!world.mine.stage[stage_lvl].clickable) {
+      return;
+    }
+
+    // Create hitbox for mine.
+    const hitbox = document.createElement('a-entity');
+    const geometry = `primitive: sphere; radius: ${world.mine.hitbox_radius}`;
+    var material = '';
+
+    if (world.debug) {
+      material = 'color:#196F3D;transparent:true;opacity:0.3';
+    } else {
+      material = 'color:#196F3D;transparent:true;opacity:0';
+    }
+
+    hitbox.setAttribute('geometry', geometry);
+    hitbox.setAttribute('material', material);
+    hitbox.setAttribute('position', `${world.mine.x} 0 ${world.mine.z}`);
+    hitbox.setAttribute('class', 'cantap');
+    hitbox.setAttribute('visible', 'true');
+
+    // Add items to the mine object.
+    this.el.sceneEl.appendChild(hitbox);
+
+    // Add Click listener to hitbox.
+    hitbox.addEventListener('click', (event) => {
+      if (stage_lvl == 1) {
+        // start of game
+        this.gameStart();
+      }
+
+      // Play sound
+      const mine_audio = document.querySelector(
+        world.mine.stage[stage_lvl].sound
+      ).components.sound;
+      //let mine_audio = document.querySelector(world.mine.stage[(stage_lvl + 1)].sound);
+      mine_audio.playSound();
+
+      world.mine.stage[stage_lvl].clickable = false;
+
+      // Coins component from mine click
+      this.addCoins(stage_lvl);
+
+      // Check if there is a next stage.
+      if (world.mine.stage.hasOwnProperty(stage_lvl + 1)) {
+        world.mine.stage[stage_lvl + 1].clickable = true;
+
+        let next_mine = document.getElementById(
+          world.mine.stage[stage_lvl + 1].name
+        );
+        next_mine.setAttribute('visible', 'true');
+        world.current_stage = stage_lvl + 1;
+
+        // Move to next stage.
+        world.move_stage = true;
+      }
+      let current_mine = document.getElementById(
+        world.mine.stage[stage_lvl].name
+      );
+      current_mine.setAttribute('visible', 'false');
+
+      // Remove this hitbox, to make way for next hitbox.
+      this.el.sceneEl.removeChild(hitbox);
+    });
+  },
+
+  ARCombat() {
+    console.log("Ar Combat");
+
+    // Grab game state
+    let world = this.state;
+    world.debug = true;
+
+    // Create hitbox for mine.
+    const hitbox = document.createElement('a-entity');
+    const geometry = `primitive: sphere; radius: ${world.mine.hitbox_radius}`;
+    var material = '';
+
+    if (world.debug) {
+      material = 'color:#196F3D;transparent:true;opacity:0.3';
+    } else {
+      material = 'color:#196F3D;transparent:true;opacity:0';
+    }
+
+    hitbox.setAttribute('geometry', geometry);
+    hitbox.setAttribute('material', material);
+    hitbox.setAttribute('position', `${world.mine.x} 0 ${world.mine.z}`);
+    hitbox.setAttribute('class', 'cantap');
+    hitbox.setAttribute('visible', 'true');
+
+    // Add items to the mine object.
+    this.el.sceneEl.appendChild(hitbox);
+
+    // Add Click listener to hitbox.
+    hitbox.addEventListener('click', (event) => {
+
+      // Coins component from mine click
+      this.addCoins(stage_lvl);
+
+      // Remove this hitbox, to make way for next hitbox.
+      this.el.sceneEl.removeChild(hitbox);
+    });
+  },
+
+  StageController(td) {
+    // let world = this.state;
+    // if (world.move_stage) {
+    //   if (world.moving_timer > 0) {
+    //     world.moving_timer -= td;
+    //     return;
+    //   }
+    //   world.moving_timer = world.moving_time;
+    //   world.move_stage = false;
+
+      
+    // }
+    this.ARCombat();
   },
 
 
@@ -438,6 +487,7 @@ AFRAME.registerComponent('MHW', {
         },
       },
     };
+    console.log("INIT")
 
     // const mine_high = document.getElementById('mine_high');
     // const mine_medium = document.getElementById('mine_medium');
@@ -467,7 +517,8 @@ AFRAME.registerComponent('MHW', {
   },
   tick(time, timeDelta) {
     // normalize timeDelta (ms)
+    console.log("TICK")
     var td = timeDelta / 1000;
-    this.mineStageController(td);
+    this.StageController(td);
   },
 });
