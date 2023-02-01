@@ -1,4 +1,4 @@
-import { thisExpression } from "@babel/types";
+
 
 AFRAME.registerComponent("spotxcomponent", {
 
