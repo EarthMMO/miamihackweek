@@ -64,9 +64,9 @@ const ArPage = () => {
   useEffect(() => {
     //iFrame to React communication handler
     const handler = (event) => {
-      let pts = Math.min(event.detail.coinPoints * 100, 4500);
-      console.log("react coinPoints", event.detail.coinPoints);
-      setEarnedPoints(pts);
+      //let pts = Math.min(event.detail.coinPoints * 100, 4500);
+      console.log("react attack recieved!", event.detail.attack);
+      //setEarnedPoints(pts);
     };
 
     const gameStart = () => {
@@ -75,12 +75,12 @@ const ArPage = () => {
     };
 
     //iFrame to React communication event listener
-    window.addEventListener("points", handler);
+    window.addEventListener("attack", handler);
     window.addEventListener("gameStart", gameStart);
 
     //iFrame to React communication handler cleanup
     return () => {
-      window.removeEventListener("points", handler);
+      window.removeEventListener("attack", handler);
       window.removeEventListener("gameStart", gameStart);
     };
   }, []);
@@ -152,8 +152,8 @@ const ArPage = () => {
             );
             document
               .querySelector("#my-iframe")
-              .contentWindow.AFRAME.components.spotxcomponent.Component.prototype.helloWorld(
-                { testData: "123" }
+              .contentWindow.AFRAME.components.spotxcomponent.Component.prototype.spawnGoblin(
+                { spawn: true }
               );
             console.log("DONEZO");
           }}
