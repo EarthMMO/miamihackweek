@@ -1437,6 +1437,10 @@ select {
   width: 150px;
 }
 
+.w-8 {
+  width: 2rem;
+}
+
 .min-w-\[250px\] {
   min-width: 250px;
 }

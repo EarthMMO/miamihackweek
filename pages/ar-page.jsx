@@ -26,20 +26,6 @@ const ArPage = () => {
   const [characters, setCharacters] = useState({});
   const [entities, setEntities] = useState({});
 
-  //useEffect(() => {
-  //  async function fetchQuests() {
-  //    try {
-  //      console.log("WTFISH");
-  //      const quests = await GET(`quest/${"6387a5c341cd13aacec4a646"}`);
-  //      console.log("QUESTS", quests);
-  //    } catch (error) {
-  //      console.log("ERROR", error);
-  //    }
-  //  }
-
-  //  fetchQuests();
-  //}, []);
-
   useEffect(() => {
     window.io = io(BACKEND_API_URL);
 
@@ -156,6 +142,23 @@ const ArPage = () => {
             setCharacters(optimisticUpdate);
           }}
         />
+        {/*
+        <Button
+          label={"IFrame Event"}
+          onClick={() => {
+            console.log(
+              "CONTENTWINDOW",
+              document.querySelector("#my-iframe").contentWindow
+            );
+            document
+              .querySelector("#my-iframe")
+              .contentWindow.AFRAME.components.spotxcomponent.Component.prototype.helloWorld(
+                { testData: "123" }
+              );
+            console.log("DONEZO");
+          }}
+        />
+        */}
         <div className={`w-full mt-4`}>
           <HealthBar character={characters[0]} />
           {Object.keys(characters)
