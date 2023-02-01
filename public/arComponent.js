@@ -13,18 +13,20 @@ AFRAME.registerComponent("spotxcomponent", {
 
     }else if (world.stage_list[world.current_stage].goblin_alive == true && someData.spawn == false){
       // Server states goblin is dead, client is showing goblin. clear goblin and hitbox.
-      const goblin = document.getElementById("goblin_boss");
-      goblin.setAttribute("visible", "false");
-      const hitbox = document.getElementById("goblin_hitbox");
-      hitbox.setAttribute("visible", "false");
+      // const goblin = document.getElementById("goblin_boss");
+      // goblin.setAttribute("visible", "false");
+      // const hitbox = document.getElementById("goblin_hitbox");
+      // hitbox.setAttribute("visible", "false");
+      world.move_stage = true;
 
 
     }else if (world.stage_list[world.current_stage].goblin_alive == false && someData.spawn == true){
       // server states goblin is alive, client is not showing goblin start showing.
-      const goblin = document.getElementById("goblin_boss");
-      goblin.setAttribute("visible", "false");
-      const hitbox = document.getElementById("goblin_hitbox");
-      hitbox.setAttribute("visible", "false");
+      // const goblin = document.getElementById("goblin_boss");
+      // goblin.setAttribute("visible", "false");
+      // const hitbox = document.getElementById("goblin_hitbox");
+      // hitbox.setAttribute("visible", "false");
+      world.move_stage = true;
     }
 
   },
@@ -49,9 +51,7 @@ AFRAME.registerComponent("spotxcomponent", {
 
 
 
-
-
-    // Create hitbox for mine.
+    // Create hitbox for goblin.
     const hitbox = document.createElement("a-entity");
     const geometry = `primitive: sphere; radius: ${world.goblin.hitbox_radius}`;
     var material = "";
@@ -77,38 +77,7 @@ AFRAME.registerComponent("spotxcomponent", {
 
       // Send attack from the player.
       this.gameUpdate();
-
-
-      // // Play sound
-      // const mine_audio = document.querySelector(
-      //   world.mine.stage[stage_lvl].sound
-      // ).components.sound;
-      // //let mine_audio = document.querySelector(world.mine.stage[(stage_lvl + 1)].sound);
-      // mine_audio.playSound();
-
-      // Coins component from mine click
-      // this.addCoins(stage_lvl);
-
-      // // Check if there is a next stage.
-      // if (world.mine.stage.hasOwnProperty(stage_lvl + 1)) {
-      //   world.mine.stage[stage_lvl + 1].clickable = true;
-
-      //   let next_mine = document.getElementById(
-      //     world.mine.stage[stage_lvl + 1].name
-      //   );
-      //   next_mine.setAttribute("visible", "true");
-      //   world.current_stage = stage_lvl + 1;
-
-      //   // Move to next stage.
-      //   world.move_stage = true;
-      // }
-      // let current_mine = document.getElementById(
-      //   world.mine.stage[stage_lvl].name
-      // );
-      // current_mine.setAttribute("visible", "false");
-
-      // Remove this hitbox, to make way for next hitbox.
-      this.el.sceneEl.removeChild(hitbox);
+      
     });
   },
   processDeath() {
@@ -116,6 +85,13 @@ AFRAME.registerComponent("spotxcomponent", {
       Server has said 
     */
     console.log("process Death");
+
+    // Remove hitbox and goblin
+    const hitbox = document.getElementById("goblin_hitbox");
+    hitbox.setAttribute("visible", "false");
+
+    const goblin = document.getElementById("goblin_boss");
+    goblin.setAttribute("visible", "false");
 
   },
   StageController(td) {
@@ -137,6 +113,11 @@ AFRAME.registerComponent("spotxcomponent", {
       }
       world.moving_timer = world.moving_time;
       world.move_stage = false;
+
+      world.current_stage = world.current_stage + 1 % Object.keys(window.GameState.stage_list).length;
+
+      console.log("current stage", world.current_stage);
+      console.log("world", world.stage_list[world.current_stage]);
 
       if (world.stage_list[world.current_stage].goblin_alive == true){
         // Goblin alive.
@@ -180,7 +161,7 @@ AFRAME.registerComponent("spotxcomponent", {
 
     window.GameState = {
       debug: true,
-      current_stage: 1,
+      current_stage: 0,
       moving_timer: 0,
       moving_time: 0.5,
       move_stage: true,
@@ -199,6 +180,9 @@ AFRAME.registerComponent("spotxcomponent", {
         z: -16,
       }
     };
+
+    console.log("number of stages:", Object.keys(window.GameState.stage_list).length);
+    console.log("current stage", window.GameState.current_stage);
 
     /* Hide Goblin by default */
     const goblin = document.getElementById("goblin_boss");
