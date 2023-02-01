@@ -1,3 +1,5 @@
+import { thisExpression } from "@babel/types";
+
 AFRAME.registerComponent("spotxcomponent", {
 
   spawnGoblin(someData) {
@@ -8,27 +10,79 @@ AFRAME.registerComponent("spotxcomponent", {
     
     
     // Check if client is in combat already.
-    if (world.stage_list[world.current_stage].goblin_alive == true && someData.spawn == true){
-      // Serve states goblin is alive, client is already showing it we good!
-
-    }else if (world.stage_list[world.current_stage].goblin_alive == true && someData.spawn == false){
+    if (world.stage_list[world.current_stage].goblin_alive == true && someData.spawn == false){
       // Server states goblin is dead, client is showing goblin. clear goblin and hitbox.
-      // const goblin = document.getElementById("goblin_boss");
-      // goblin.setAttribute("visible", "false");
-      // const hitbox = document.getElementById("goblin_hitbox");
-      // hitbox.setAttribute("visible", "false");
       world.move_stage = true;
-
 
     }else if (world.stage_list[world.current_stage].goblin_alive == false && someData.spawn == true){
       // server states goblin is alive, client is not showing goblin start showing.
-      // const goblin = document.getElementById("goblin_boss");
-      // goblin.setAttribute("visible", "false");
-      // const hitbox = document.getElementById("goblin_hitbox");
-      // hitbox.setAttribute("visible", "false");
       world.move_stage = true;
     }
 
+  },
+  shootFireball(){
+    console.log("shooting fireball")
+    // Grab game state
+    let world = window.GameState;
+
+    // grab camera
+    //const camera = document.getElementById("camera");
+
+    //console.log("camera", camera.getAttribute('position'));
+
+    // Create new entity for the new object
+    const fireball = document.createElement('a-entity');
+
+    // Setup fireball attributes
+    fireball.setAttribute('position', "0 4 8");
+    fireball.setAttribute(
+      'rotation',
+      `${Math.random() * 360} ${Math.random() * 360} ${Math.random() * 360}`
+    ); // Initial Rotation
+    fireball.setAttribute('visible', 'false'); // visible at start.
+    // new_coin.setAttribute(
+    //   'scale',
+    //   `${world.coin.initial_size} ${world.coin.initial_size} ${world.coin.initial_size}`
+    // ); // First Size
+    fireball.setAttribute('xrextras-spin', {
+      speed: 400,
+    }); // Rotate / spin
+    fireball.setAttribute('gltf-model', '#Fireball');
+
+    // When model is finished loading.
+    fireball.addEventListener('model-loaded', () => {
+    
+      fireball.setAttribute('visible', 'true'); // Make fireball visible
+
+
+      fireball.setAttribute('animation__first', {
+        property: 'position',
+        to: `${world.goblin.x} ${world.goblin.y + 8} ${world.goblin.z}`,
+        dur: '800',
+        easing: 'easeInQuad',
+        loop: 'false',
+        autoplay: 'true',
+        dir: 'alternate',
+      });
+
+      fireball.setAttribute('animation__second', {
+        property: 'scale',
+        to: '.5 .5 .5',
+        easing: 'easeOutElastic',
+        dur: 800,
+      });
+
+      fireball.addEventListener('animationcomplete__first', () => {
+        // remove fireball after animation.
+        fireball.setAttribute('visible', 'false');
+        fireball.parentNode.removeChild(fireball);
+      });
+    });
+
+
+
+
+    this.el.sceneEl.appendChild(fireball); // Add coin to scene
   },
   processCombat() {
     /*
@@ -74,6 +128,9 @@ AFRAME.registerComponent("spotxcomponent", {
 
     // Add Click listener to hitbox.
     hitbox.addEventListener("click", (event) => {
+
+      // shoot fireball
+      this.shootFireball();
 
       // Send attack from the player.
       this.gameUpdate();
@@ -173,6 +230,10 @@ AFRAME.registerComponent("spotxcomponent", {
           goblin_alive: false,
         }
       },
+      fireball:{
+        spread_x:1,
+        spread_y:1,
+      },
       goblin:{
         hitbox_radius: 7,
         x: 0,
@@ -187,6 +248,9 @@ AFRAME.registerComponent("spotxcomponent", {
     /* Hide Goblin by default */
     const goblin = document.getElementById("goblin_boss");
     goblin.setAttribute("visible", "false");
+
+    //const fireball = document.getElementById("fireball");
+    //fireball.setAttribute("visible", "false");
 
     const mine_high = document.getElementById("mine_high");
     const mine_medium = document.getElementById("mine_medium");
