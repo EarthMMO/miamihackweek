@@ -3,12 +3,14 @@ import { useAccount } from 'wagmi'
 import { Container, Spinner, Box, Grid, GridItem } from '@chakra-ui/react';
 import { useWeb3AuthHook } from '../utils/web3AuthContext';
 import { use, useEffect } from 'react';
+import Head from 'next/head';
+import Map, {Marker} from 'react-map-gl';
 
 const Homepage = () => {
 
   //hook to access wallet connect user address
   const { address, isConnecting, isDisconnected } = useAccount()
-  
+
   //hook to access web3auth user address
   const { w3aAddress, w3aUserInfo, w3aAuthenticatedUser  } = useWeb3AuthHook()
 
@@ -18,7 +20,7 @@ const Homepage = () => {
   },[address, w3aAddress])
 
   if (isConnecting) {
-    return ( 
+    return (
     <Container fluid mt={8} >
       <Grid justifyItems={'center'}>
         <GridItem>
@@ -30,22 +32,39 @@ const Homepage = () => {
           size='xl'
           />
         </GridItem>
-      </Grid>  
+      </Grid>
   </Container>
   )}
 
   if (address || w3aAddress) {
-    return <Layout>Hola {address || w3aAddress} !</Layout>  
+    return <Layout>Hola {address || w3aAddress} !</Layout>
   }
-  
+
   if (isDisconnected || !w3aAddress) {
     return (
     <Layout>
-      <Container mt={5}>
-        Connect or create a wallet to get started 
-      </Container>
+      <Head>
+        <link href='https://api.mapbox.com/mapbox-gl-js/v2.8.1/mapbox-gl.css' rel='stylesheet' />
+      </Head>
+      <Map
+        initialViewState={{
+          latitude: 25.791437,
+          longitude: -80.194324,
+          zoom: 14
+        }}
+        style={{width: 800, height: 600}}
+        mapStyle="mapbox://styles/mapbox/streets-v9"
+        mapboxAccessToken="pk.eyJ1IjoianJlZGJveXoiLCJhIjoiY2xka3JvN2s5MHB1ODNybXM1dHJzbnlidyJ9.QgPoymDkVG1RuMlaWo2BPw"
+      >
+        <Marker
+        longitude={-80.1999636}
+        latitude={25.799933}>
+          <img src={"https://www.svgrepo.com/show/322436/goblin-head.svg"} width="50" height="50"/>
+      </Marker>
+      </Map>
+
     </Layout>
-    )    
+    )
   }
 
 };

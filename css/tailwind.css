@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "GarethaRegular";
+  src: url("../public/fonts/GarethaRegular.otf");
+}
+
+@layer utilities {
+  .background-art {
+    background-image: url("../../public/background.webp");
+    /* Set a specific height */
+    height: 100%;
+    scale: 1.1;
+
+    /* Create the parallax scrolling effect */
+    background-position: center -135px;
+    background-size: auto 94%;
+    background-repeat: no-repeat;
+  }
+
+  .midground-art {
+    background-image: url("../../public/midground.webp");
+    /* Set a specific height */
+    height: 100%;
+    scale: 1.1;
+    margin-top: -75px;
+
+    /* Create the parallax scrolling effect */
+    background-position: center bottom;
+    background-size: auto 115%;
+    background-repeat: no-repeat;
+  }
+
+  .foreground-art {
+    background-image: url("../../public/foreground.webp");
+    /* Set a specific height */
+    height: 100%;
+    scale: 1.18;
+    margin-top: -25px;
+
+    /* Create the parallax scrolling effect */
+    background-position: center bottom;
+    background-size: auto 124%;
+    background-repeat: no-repeat;
+  }
+
+  .mobile-art {
+    background-image: url("../../public/mobile1500.webp");
+    background-position: center -250px;
+    background-size: 1100px 1100px;
+    background-repeat: no-repeat;
+  }
+
+  .slanted-bottom {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 calc(100% - 6vw));
+  }
+
+  .black-gradient {
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0) 95%,
+      rgba(0, 0, 0, 1)
+    );
+  }
+
+  @media (min-width: 2626px) {
+    .landing-image {
+      min-height: 1451px;
+      object-fit: none;
+    }
+  }
+}
