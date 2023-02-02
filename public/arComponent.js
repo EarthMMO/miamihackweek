@@ -1,234 +1,161 @@
 AFRAME.registerComponent("spotxcomponent", {
-  addCoins(level) {
-    if (level > 3) {
-      return;
-    }
-
-    let world = window.state;
-    let lvl = window.state.level[level];
-
-    while (lvl.round_coins > 0) {
-      // Game Updates.
-      this.gameUpdate();
-
-      lvl.round_coins -= 1; // Take Away from total pool of coins
-      world.coins_on_ground += 1; // Put coin on ground
-
-      setTimeout(() => {
-        var livespawn = true;
-
-        const randomYRotation = Math.random() * 360; // Random starting rotation
-        const Xangle = 90;
-        var randomXRotation = Xangle;
-
-        const newX =
-          world.mine.x + Math.random() * (2 * lvl.distance) - lvl.distance; // Random x ( left / Right ) direction
-        const newZ =
-          world.mine.z + Math.random() * (2 * lvl.distance) - lvl.distance; // Random y ( back / Forward ) direction
-
-        if (world.coin.extra_rotation) {
-          randomXRotation = Math.random() * Xangle;
-        }
-
-        const hitbox = document.createElement("a-entity");
-
-        const geometry = `primitive: sphere; radius: ${world.coin.hitbox_radius}`;
-        var material = "";
-        if (world.debug) {
-          material = "color:#EF2D5E;transparent:true;opacity:0.3";
-        } else {
-          material = "color:#EF2D5E;transparent:true;opacity:0";
-        }
-        hitbox.setAttribute("geometry", geometry);
-        hitbox.setAttribute("material", material);
-        hitbox.setAttribute("position", `${newX} 0 ${newZ}`);
-        hitbox.setAttribute("class", "cantap");
-        hitbox.setAttribute("visible", "false");
-
-        // Create new entity for the new object
-        const new_coin = document.createElement("a-entity");
-
-        // Setup coin attributes
-
-        new_coin.setAttribute("position", `${world.mine.x} 1 ${world.mine.z}`);
-        new_coin.setAttribute(
-          "rotation",
-          `${randomXRotation} ${randomYRotation} 0`
-        ); // Initial Rotation
-        new_coin.setAttribute("visible", "false"); // visible at start.
-        new_coin.setAttribute(
-          "scale",
-          `${world.coin.initial_size} ${world.coin.initial_size} ${world.coin.initial_size}`
-        ); // First Size
-        new_coin.setAttribute("xrextras-spin", {
-          speed: world.coin.rotation_speed,
-        }); // Rotate / spin
-        new_coin.setAttribute("class", "cantap"); // Can Tap element
-        new_coin.setAttribute("gltf-model", "#coin_model"); // Set model
-
-        // Add the textbox to the coin
-        const new_TextBox = document.createElement("a-entity");
-        new_TextBox.setAttribute("position", `${newX} 1 ${newZ}`);
-        new_TextBox.setAttribute(
-          "geometry",
-          "primitive:plane;width:3;height:auto"
-        );
-        new_TextBox.setAttribute(
-          "material",
-          "color:#444444;transparent:true;opacity:0"
-        );
-        new_TextBox.setAttribute(
-          "text",
-          `anchor:center;baseline:center;align:center;wrapCount:20;transparent:true;opacity:0.7;color:#FAD902;value:+${world.textbox_points}`
-        );
-        new_TextBox.setAttribute("visible", "false");
-        new_TextBox.setAttribute("scale", "4 4 4");
-
-        // Add items to the mine object.
-        this.el.sceneEl.appendChild(hitbox); // Add coin to scene
-        this.el.sceneEl.appendChild(new_TextBox); // Add text to coins
-        this.el.sceneEl.appendChild(new_coin); // Add coin to scene
-
-        hitbox.addEventListener("click", (event) => {
-          hitbox.setAttribute("visible", "false");
-
-          // If the coin is not killed by running out of time from sitting on the ground.
-          if (livespawn == true) {
-            livespawn = false;
-
-            // Play sound
-            var soundName =
-              world.coin_sounds[
-                Math.floor(Math.random() * world.coin_sounds.length)
-              ];
-            const coin_audio =
-              document.querySelector(soundName).components.sound;
-            //let mine_audio = document.querySelector(world.mine.stage[(stage_lvl + 1)].sound);
-            coin_audio.playSound();
-
-            // Display text points
-            new_TextBox.setAttribute("visible", "true");
-
-            // Add Animation
-            new_TextBox.setAttribute("animation__textFirst", {
-              property: "position",
-              to: `${newX} 8 ${newZ}`, // TODO Change trejectory from straight up to curve up to a slight angle.
-              dur: "1000",
-              easing: "easeInOutQuad",
-              loop: "false",
-              autoplay: "true",
-              dir: "alternate",
-            });
-
-            // Remove After animation
-            new_TextBox.addEventListener("animationcomplete__textFirst", () => {
-              new_TextBox.setAttribute("visible", "false"); // remove from display
-              new_TextBox.parentNode.removeChild(new_TextBox); // Remove from Aframe
-            });
-
-            // Add coin point.
-            world.coin_points += 1; // Fetch command to server maybe to increment coin.
-            console.log("coin collected!", world.coin_points);
-            //this sends the update coin_points to react
-            this.gameUpdate();
-            world.coins_on_ground -= 1; // Remove counter for coins on ground.
-
-            new_coin.setAttribute("visible", "false");
-            new_coin.parentNode.removeChild(new_coin);
-          }
-
-          this.el.sceneEl.removeChild(hitbox);
-        });
-
-        // When model is finished loading.
-        new_coin.addEventListener("model-loaded", () => {
-          // Once the model is loaded, we are ready to show it popping in using an animation
-          new_coin.setAttribute("visible", "true"); // Make coin visible
-
-          /* ===============   Coin Animations   =============== */
-
-          // Setup first animation to move coin from starting point to ending point
-          // From the Center Mine/box to the random location out.
-          new_coin.setAttribute("animation__first", {
-            property: "position",
-            to: `${newX} 0 ${newZ}`,
-            dur: "900",
-            easing: "easeInOutQuad",
-            loop: "false",
-            autoplay: "true",
-            dir: "alternate",
-          });
-
-          new_coin.setAttribute("animation__second", {
-            property: "scale",
-            to: `${world.coin.standing_size} ${world.coin.standing_size} ${world.coin.standing_size}`,
-            easing: "easeOutElastic",
-            dur: 800,
-          });
-
-          // Setup Third animation start after 5 seconds, to blink.
-          new_coin.setAttribute("animation__third", {
-            property: "scale",
-            delay: 4500,
-            from: `${world.coin.standing_size} ${world.coin.standing_size} ${world.coin.standing_size}`,
-            to: `${world.coin.flash_size} ${world.coin.flash_size} ${world.coin.flash_size}`,
-            dur: 800,
-            loop: 5,
-          });
-
-          /* ===============   Coin Listeners   =============== */
-          // Listner once third animation is complete destory coin.
-          new_coin.addEventListener("animationcomplete__second", () => {
-            // Draw hitbox once coins are on floor.
-            hitbox.setAttribute("visible", "true");
-          });
-
-          // Listner once third animation is complete destory coin.
-          new_coin.addEventListener("animationcomplete__third", () => {
-            if (livespawn == true) {
-              livespawn = false;
-
-              // de-increment coins on ground.
-              world.coins_on_ground -= 1;
-              // Remove Coin
-              new_coin.setAttribute("visible", "false");
-              new_coin.parentNode.removeChild(new_coin);
-
-              //remove hitbox
-              hitbox.setAttribute("visible", "false");
-            }
-          });
-        });
-      }, Math.random() * world.shooting_speed);
-    }
+  onCharacterDeath(characterId) {
+    console.log(`${characterId} is dead!`);
   },
-  helloWorld(someData) {
-    console.log("HELLO WORLD", someData);
-    let world = window.state;
+  spawnGoblin(someData) {
+    console.log("SPAWN: Goblin from Server", someData);
+    let world = window.GameState;
     console.log("STATE", world);
-    world.level[1].round_coins = 3;
-    world.level[2].round_coins = 3;
-    world.level[3].round_coins = 3;
+
+    // Check if client is in combat already.
+    if (
+      world.stage_list[world.current_stage].goblin_alive == true && someData == false
+    ) {
+      // Server states goblin is dead, client is showing goblin. clear goblin and hitbox.
+      console.log("SPAWN: Goblin is dead.");
+      world.move_stage = true;
+
+    } else if (
+      world.stage_list[world.current_stage].goblin_alive == false && someData == true
+    ) {
+      // server states goblin is alive, client is not showing goblin start showing.
+      console.log("SPAWN: Goblin is spawned.");
+      world.move_stage = true;
+    }else {
+      console.log("SPAWN: nothing...");
+    }
   },
-  processMine() {
+  shootFireball() {
+    console.log("shooting fireball");
     // Grab game state
-    let world = window.state;
-    let stage_lvl = world.current_stage;
+    let world = window.GameState;
 
-    // Check if past last stage.
-    if (stage_lvl > 3) {
-      //console.log("Last stage already reached.");
-      return;
-    }
+    // Play Sound
+    var soundName =
+      world.fireball.sounds[
+        Math.floor(Math.random() * world.fireball.sounds.length)
+      ];
 
-    // check if clickable
-    if (!world.mine.stage[stage_lvl].clickable) {
-      return;
-    }
+    const fireball_audio = document.querySelector(soundName).components.sound;
+    fireball_audio.stopSound();
+    fireball_audio.playSound();
 
-    // Create hitbox for mine.
+    // grab camera
+    const camera = document.getElementById("camera");
+    const cameraPos = camera.getAttribute("position");
+
+    console.log("camera", cameraPos);
+
+    // Create new entity for the new object
+    const fireball = document.createElement("a-entity");
+
+    // Setup fireball attributes
+    fireball.setAttribute(
+      "position",
+      `${cameraPos.x} ${cameraPos.y - 3} ${cameraPos.z}`
+    );
+    fireball.setAttribute("scale", "2 2 2");
+    fireball.setAttribute(
+      "rotation",
+      `${Math.random() * 360} ${Math.random() * 360} ${Math.random() * 360}`
+    ); // Initial Rotation
+    fireball.setAttribute("visible", "false"); // visible at start.
+    // new_coin.setAttribute(
+    //   'scale',
+    //   `${world.coin.initial_size} ${world.coin.initial_size} ${world.coin.initial_size}`
+    // ); // First Size
+    fireball.setAttribute("xrextras-spin", {
+      speed: 400,
+    }); // Rotate / spin
+    fireball.setAttribute("gltf-model", "#Fireball");
+
+    // When model is finished loading.
+    fireball.addEventListener("model-loaded", () => {
+      fireball.setAttribute("visible", "true"); // Make fireball visible
+
+      spread_y =
+        Math.random() * 2 * world.fireball.spread_y - world.fireball.spread_y;
+      spread_z =
+        Math.random() * 2 * world.fireball.spread_z - world.fireball.spread_z;
+
+      console.log("spread y:", spread_y);
+      console.log("spread z:", spread_z);
+
+      fireball.setAttribute("animation__first", {
+        property: "position",
+        to: `${world.goblin.x} ${world.goblin.y + 8 + spread_y} ${
+          world.goblin.z + spread_z
+        }`,
+        dur: "700",
+        easing: "easeInQuad",
+        loop: "false",
+        autoplay: "true",
+        dir: "alternate",
+      });
+
+      fireball.setAttribute("animation__second", {
+        property: "scale",
+        to: ".5 .5 .5",
+        easing: "easeOutElastic",
+        dur: 750,
+      });
+
+      fireball.addEventListener("animationcomplete__first", () => {
+        // Play goblin hit 1/5 chance
+        if (Math.floor(Math.random() * 3) == 1) {
+          // Play Sound
+          var soundName =
+            world.goblin.onhit_sounds[
+              Math.floor(Math.random() * world.goblin.onhit_sounds.length)
+            ];
+
+          const goblinHit_audio =
+            document.querySelector(soundName).components.sound;
+          goblinHit_audio.stopSound();
+          goblinHit_audio.playSound();
+        }
+
+        // remove fireball after animation.
+        fireball.setAttribute("visible", "false");
+        fireball.parentNode.removeChild(fireball);
+      });
+    });
+
+    this.el.sceneEl.appendChild(fireball); // Add fireball to scene
+  },
+  processCombat() {
+    /*
+
+      Stage 1 combat correlates to the combat stage and does the setup for the hitbox,
+      and calls aux functions to handle different aspects.
+
+      This Function will be ran once
+    */
+
+    console.log("AR Combat");
+
+    // Grab game state
+    let world = window.GameState;
+
+    /* show Goblin by default */
+    const goblin = document.getElementById("goblin_boss");
+    goblin.setAttribute("visible", "true");
+
+    // Play goblin spawn
+    // Play Sound
+    var soundName =
+      world.goblin.onspawn_sounds[
+        Math.floor(Math.random() * world.goblin.onspawn_sounds.length)
+      ];
+
+    const goblinSpawn_audio =
+      document.querySelector(soundName).components.sound;
+    goblinSpawn_audio.stopSound();
+    goblinSpawn_audio.playSound();
+
+    // Create hitbox for goblin.
     const hitbox = document.createElement("a-entity");
-    const geometry = `primitive: sphere; radius: ${world.mine.hitbox_radius}`;
+    const geometry = `primitive: sphere; radius: ${world.goblin.hitbox_radius}`;
     var material = "";
 
     if (world.debug) {
@@ -239,57 +166,71 @@ AFRAME.registerComponent("spotxcomponent", {
 
     hitbox.setAttribute("geometry", geometry);
     hitbox.setAttribute("material", material);
-    hitbox.setAttribute("position", `${world.mine.x} 0 ${world.mine.z}`);
+    hitbox.setAttribute(
+      "position",
+      `${world.goblin.x} ${world.goblin.y + 8} ${world.goblin.z}`
+    );
     hitbox.setAttribute("class", "cantap");
     hitbox.setAttribute("visible", "true");
+    hitbox.setAttribute("id", "goblin_hitbox");
 
     // Add items to the mine object.
     this.el.sceneEl.appendChild(hitbox);
 
     // Add Click listener to hitbox.
     hitbox.addEventListener("click", (event) => {
-      if (stage_lvl == 1) {
-        // start of game
-        this.gameStart();
-      }
+      // shoot fireball
+      this.shootFireball();
 
-      // Play sound
-      const mine_audio = document.querySelector(
-        world.mine.stage[stage_lvl].sound
-      ).components.sound;
-      //let mine_audio = document.querySelector(world.mine.stage[(stage_lvl + 1)].sound);
-      mine_audio.playSound();
-
-      world.mine.stage[stage_lvl].clickable = false;
-
-      // Coins component from mine click
-      this.addCoins(stage_lvl);
-
-      // Check if there is a next stage.
-      if (world.mine.stage.hasOwnProperty(stage_lvl + 1)) {
-        world.mine.stage[stage_lvl + 1].clickable = true;
-
-        let next_mine = document.getElementById(
-          world.mine.stage[stage_lvl + 1].name
-        );
-        next_mine.setAttribute("visible", "true");
-        world.current_stage = stage_lvl + 1;
-
-        // Move to next stage.
-        world.move_stage = true;
-      }
-      let current_mine = document.getElementById(
-        world.mine.stage[stage_lvl].name
-      );
-      current_mine.setAttribute("visible", "false");
-
-      // Remove this hitbox, to make way for next hitbox.
-      this.el.sceneEl.removeChild(hitbox);
+      // Send attack from the player.
+      this.gameUpdate();
     });
   },
-  mineStageController(td) {
-    let world = window.state;
+  processDeath() {
+    /* 
+      Server has said 
+    */
+    console.log("process Death");
+
+    // Grab game state
+    let world = window.GameState;
+
+    // Play goblin death
+    // Play Sound
+    var soundName =
+      world.goblin.ondeath_sounds[
+        Math.floor(Math.random() * world.goblin.ondeath_sounds.length)
+      ];
+
+    const goblinDeath_audio =
+      document.querySelector(soundName).components.sound;
+    goblinDeath_audio.stopSound();
+    goblinDeath_audio.playSound();
+
+    // Remove hitbox and goblin
+    const hitbox = document.getElementById("goblin_hitbox");
+    hitbox.setAttribute("visible", "false");
+    hitbox.parentNode.removeChild(hitbox);
+    //this.el.sceneEl.removeChild(hitbox);
+
+    const goblin = document.getElementById("goblin_boss");
+    goblin.setAttribute("visible", "false");
+    
+  },
+  StageController(td) {
+    /* 
+      Handle Stage switches here.
+      This will controller the switching the scene idle, play, etc
+      Goblin Combat,
+      or Goblin dead waiting to respond
+
+    */
+    //console.log("StageController FUNC");
+    let world = window.GameState;
+
+    // Singleton in a async process
     if (world.move_stage) {
+      console.log("StageController: ", "moving...")
       if (world.moving_timer > 0) {
         world.moving_timer -= td;
         return;
@@ -297,120 +238,115 @@ AFRAME.registerComponent("spotxcomponent", {
       world.moving_timer = world.moving_time;
       world.move_stage = false;
 
-      this.processMine();
+      console.log("current_stage:", world.current_stage);
+      console.log("mod: ",(Object.keys(window.GameState.stage_list).length + 1));
+      world.current_stage = ((world.current_stage + 1) % (Object.keys(window.GameState.stage_list).length + 1));
+      console.log("current_stage:", world.current_stage);
+      if (world.current_stage <= 0){
+        world.current_stage = 1;
+      }
+
+      console.log("current stage", world.current_stage);
+      console.log("world", world.stage_list[world.current_stage]);
+
+      if (world.stage_list[world.current_stage].goblin_alive == true) {
+        // Goblin alive.
+        this.processCombat();
+      } else if (world.stage_list[world.current_stage].goblin_alive == false) {
+        // Goblin Dead
+        //const mine_high = document.getElementById("mine_high");
+        this.processDeath();
+      }
     }
   },
   gameStart() {
+    /*
+      Player has started their interaction with the stage 1 goblin. Tell React that they are enaging
+
+    */
+    console.log("gameStart FUNC");
     let startEvent = new Event("gameStart");
     window.parent.dispatchEvent(startEvent);
   },
   gameUpdate() {
     let message = {
-      coinPoints: window.state.coin_points,
+      //coinPoints: window.state.coin_points,
+      attack: true,
     };
-
-    let evtObj = new CustomEvent("points", { detail: message });
+    console.log("client sending attack!");
+    let evtObj = new CustomEvent("attack", { detail: message });
     window.parent.dispatchEvent(evtObj);
   },
   init() {
-    window.state = {
-      mine: {
-        stage: {
-          1: {
-            sound: "#mine_high_sound",
-            name: "mine_high",
-            clickable: true,
-          },
-          2: {
-            sound: "#mine_medium_sound",
-            name: "mine_medium",
-            clickable: false,
-          },
-          3: {
-            sound: "#mine_low_sound",
-            name: "mine_low",
-            clickable: false,
-          },
-          4: {
-            name: "mine_empty",
-            clickable: false,
-          },
-        },
-        hitbox_radius: 5,
-        x: 0,
-        y: 2,
-        z: -12,
-      },
+    console.log("INIT FUNC");
 
-      coin: {
-        hitbox_radius: 1,
-        rotation_speed: 2000,
-        initial_size: 0.001,
-        standing_size: 0.015,
-        flash_size: 0.01,
-        extra_rotation: false,
-      },
+    /*
+      Send that the client is in the AR experience.
+    */
+    // start of game
+    this.gameStart();
 
-      coin_sounds: ["#coin_sound1"],
+    window.GameState = {
+      debug: true,
+      current_stage: 0,
       moving_timer: 0,
       moving_time: 0.5,
       move_stage: true,
-      current_stage: 1,
-      debug: false,
-      coins_on_ground: 0,
-      coin_points: 0,
-      speed_to_shoot: 1000,
-      textbox_points: 100,
-
-      level: {
+      stage_list: {
         1: {
-          round_coins: 15,
-          distance: 10,
+          goblin_alive: true,
         },
         2: {
-          round_coins: 15,
-          distance: 10,
-        },
-        3: {
-          round_coins: 15,
-          distance: 10,
+          goblin_alive: false,
         },
       },
+      fireball: {
+        sounds: ["#fireball_sound1"],
+        spread_y: 1.5,
+        spread_z: 1.5,
+      },
+      goblin: {
+        onhit_sounds: ["#goblin_hit1"],
+        ondeath_sounds: ["#goblin_death1"],
+        onspawn_sounds: ["#goblin_spawn1"],
+        hitbox_radius: 7,
+        x: 0,
+        y: 2,
+        z: -16,
+      },
     };
+
+    console.log(
+      "number of stages:",
+      Object.keys(window.GameState.stage_list).length
+    );
+    console.log("current stage", window.GameState.current_stage);
+
+    /* Hide Goblin by default */
+    const goblin = document.getElementById("goblin_boss");
+    goblin.setAttribute("visible", "false");
+
+    //const fireball = document.getElementById("fireball");
+    //fireball.setAttribute("visible", "false");
 
     const mine_high = document.getElementById("mine_high");
     const mine_medium = document.getElementById("mine_medium");
     const mine_low = document.getElementById("mine_low");
     const mine_empty = document.getElementById("mine_empty");
 
-    mine_high.setAttribute(
-      "position",
-      `${window.state.mine.x} ${window.state.mine.y} ${window.state.mine.z}`
-    );
-    mine_medium.setAttribute(
-      "position",
-      `${window.state.mine.x} ${window.state.mine.y} ${window.state.mine.z}`
-    );
-    mine_low.setAttribute(
-      "position",
-      `${window.state.mine.x} ${window.state.mine.y} ${window.state.mine.z}`
-    );
-    mine_empty.setAttribute(
-      "position",
-      `${window.state.mine.x} ${window.state.mine.y} ${window.state.mine.z}`
-    );
-
+    mine_high.setAttribute("visible", "false");
     mine_medium.setAttribute("visible", "false");
     mine_low.setAttribute("visible", "false");
     mine_empty.setAttribute("visible", "false");
-
-    //window.addEventListener("hello", (num) => {
-    //  console.log("NUM", num);
     //});
   },
   tick(time, timeDelta) {
+    /*
+      Update every tick of the AR.
+
+    */
     // normalize timeDelta (ms)
     var td = timeDelta / 1000;
-    this.mineStageController(td);
+    this.StageController(td);
   },
 });

@@ -45,6 +45,11 @@ const App = ({ Component, pageProps }) => {
           src="//cdn.8thwall.com/web/aframe/aframe-physics-system-4.0.1.min.js"
         ></script>
 
+        <script
+          defer
+          src="//cdn.8thwall.com/web/aframe/aframe-extras-6.1.1.min.js"
+        ></script>
+
         {/* <!-- XR Extras - provides utilities like load screen, almost there, and error handling.
           See github.com/8thwall/web/tree/master/xrextras --> */}
         <script defer src="//cdn.8thwall.com/web/xrextras/xrextras.js"></script>
@@ -52,7 +57,7 @@ const App = ({ Component, pageProps }) => {
         {/* <!-- 8thWall Web - Replace the app key here with your own app key --> */}
         <script
           defer
-          src="//apps.8thwall.com/xrweb?appKey=tirdbaDAooelYE6JwxlonnWJVjB4FThiStxs9Mxys7CRa6pXeCfN8DLRBnZ6I8UorzQ7u5"
+          src="//apps.8thwall.com/xrweb?appKey=kBNWJKSJcgqo6oonGp9FRT2aY8SGJm5AkP2zG1PQlbAZH3QL9DqOIi4nXphv4E5CJqk9JC"
         ></script>
 
         <script defer src="arComponent.js"></script>
