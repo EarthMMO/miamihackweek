@@ -26,6 +26,7 @@
     "cross-env": "^7.0.3",
     "ethers": "^5.7.2",
     "framer-motion": "^8.5.3",
+    "lodash": "^4.17.21",
     "mapbox-gl": "^2.12.0",
     "mkcert": "^1.5.1",
     "next": "^13.1.5",
