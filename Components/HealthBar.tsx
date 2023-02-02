@@ -55,7 +55,7 @@ export default function HealthBar({
         style={{
           borderRadius: "3px",
           border: "1px solid black",
-          width,
+          width: enemy ? 125 : 86,
           height,
           backgroundColor: "#000000",
         }}
