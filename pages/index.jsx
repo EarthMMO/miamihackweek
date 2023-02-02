@@ -155,7 +155,7 @@ const ArPage = () => {
   }
 
   return (
-    <>
+    <div>
       {/*
       <Link href="/">
         <IconButton size={"md"} icon={<ArrowBackIcon />}>
@@ -255,18 +255,18 @@ const ArPage = () => {
           </div>
         </span>
       </div>
-      <Box
+      <div
         // style={{ height: "75vh", width: "100vw" }}
         dangerouslySetInnerHTML={{
           __html: `<iframe
             id="my-iframe"
-            style="border: 0; width: 100vh; height: 100vh"
+            style="border: 0; width: 100vw; height: 90vh"
             allow="camera;microphone;gyroscope;accelerometer;"
             src="demoARexperience.html">
             </iframe>`,
         }}
       />
-    </>
+    </div>
   );
 };
 
