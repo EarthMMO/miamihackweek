@@ -91,8 +91,8 @@ const ArPage = () => {
   useEffect(() => {
     console.log("tracking the game");
     const endGame = async (timer) => {
-      alert("game over!");
-      setGameOver(true);
+      //alert("game over!");
+      //setGameOver(true);
     };
     let interval = null;
     if (isActive && seconds > 0) {
