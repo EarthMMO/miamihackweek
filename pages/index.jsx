@@ -68,9 +68,12 @@ const ArPage = () => {
         );
     });
 
-    const randomFirstName = randomName.first();
-    window.io.emit("identity", randomFirstName);
-    window.io.emit("subscribe", "ONE", [randomFirstName]);
+    let name = prompt("What should we call you, adventurer?");
+    if (!name) {
+      name = randomName.first();
+    }
+    window.io.emit("identity", name);
+    window.io.emit("subscribe", "ONE", [name]);
     window.io.emit("sync-gamestate", (response) => {
       console.log("CHARACTERS", response.characters);
       console.log("ENTITIES", response.entities);
@@ -160,8 +163,7 @@ const ArPage = () => {
         </IconButton>
       </Link>
       */}
-      <Container fluid mt={8}>
-        {/*
+      {/*
         <input
           type="text"
           value={name}
@@ -179,33 +181,36 @@ const ArPage = () => {
           label={"Clear"}
           onClick={() => window.io.emit("clear", "ONE")}
         />
-        <Button
-          label={"Print rooms"}
-          onClick={() => window.io.emit("print-rooms")}
-        />
         <Button label={"Log gamestate"} onClick={() => window.io.emit("log")} />
         */}
-        <Center>
-          <div className="absolute flex-col top-3">
+      <Center className="flex-col w-full">
+        <div className="flex-col">
+          <Center>
             <div>❗use google chrome if it doesn't load❗</div>
-            <Center>
-              <Button
-                label={"Give Grakk'thul a Max Potion 🧪"}
-                onClick={() => {
-                  window.io.emit("reset-gamestate");
-                  document
-                    .querySelector("#my-iframe")
-                    .contentWindow.AFRAME.components.spotxcomponent.Component.prototype.spawnGoblin(
-                      true
-                    );
-                }}
-              />
-            </Center>
-            <Center>
-              <div>tap goblin to shoot ☄️, bring your friends</div>
-            </Center>
-          </div>
-        </Center>
+          </Center>
+          <Center>
+            <Button
+              label={"Give Grakk'thul a Max Potion 🧪"}
+              onClick={() => {
+                window.io.emit("reset-gamestate");
+                document
+                  .querySelector("#my-iframe")
+                  .contentWindow.AFRAME.components.spotxcomponent.Component.prototype.spawnGoblin(
+                    true
+                  );
+              }}
+            />
+            <Button
+              label={"Print rooms"}
+              onClick={() => window.io.emit("print-rooms")}
+            />
+          </Center>
+          <Center>
+            <div>tap goblin to shoot ☄️, bring your friends</div>
+          </Center>
+        </div>
+      </Center>
+      <div className="absolute w-full justify-between pointer-events-none">
         {/*
         <Button label={"Attack character"} onClick={attackCharacter} />
         <Button
@@ -224,35 +229,43 @@ const ArPage = () => {
           }}
         />
         */}
-        <span className={`flex flex-row mt-4 justify-between`}>
-          <div className={`w-full flex justify-start`}>
-            <HealthBar character={characters[0]} />
-            {Object.keys(characters)
-              .slice(1)
-              .map((playerId) => (
-                <HealthBar character={characters[playerId]} partyMember />
-              ))}
+        <span className={`flex flex-row mt-4 w-full`}>
+          <div className={`w-full flex flex-col justify-start`}>
+            {Object.keys(characters).map((characterId) => {
+              const character = characters[characterId];
+              return (
+                <HealthBar
+                  character={character}
+                  percentage={character.health / character.maxHealth}
+                />
+              );
+            })}
           </div>
           <div className={`w-full flex justify-end`}>
-            {Object.keys(entities).map((entityId) => (
-              <HealthBar character={entities[entityId]} enemy />
-            ))}
+            {Object.keys(entities).map((entityId) => {
+              const entity = entities[entityId];
+              return (
+                <HealthBar
+                  character={entity}
+                  percentage={entity.health / entity.maxHealth}
+                  enemy
+                />
+              );
+            })}
           </div>
         </span>
-        <Center>
-          <Box
-            // style={{ height: "75vh", width: "100vw" }}
-            dangerouslySetInnerHTML={{
-              __html: `<iframe
+      </div>
+      <Box
+        // style={{ height: "75vh", width: "100vw" }}
+        dangerouslySetInnerHTML={{
+          __html: `<iframe
             id="my-iframe"
-            style="border: 0; width: 75vh; height: 75vh"
+            style="border: 0; width: 100vh; height: 100vh"
             allow="camera;microphone;gyroscope;accelerometer;"
             src="demoARexperience.html">
             </iframe>`,
-            }}
-          />
-        </Center>
-      </Container>
+        }}
+      />
     </>
   );
 };
