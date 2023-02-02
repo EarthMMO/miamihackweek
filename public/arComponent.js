@@ -27,16 +27,31 @@ AFRAME.registerComponent("spotxcomponent", {
     // Grab game state
     let world = window.GameState;
 
-    // grab camera
-    //const camera = document.getElementById("camera");
+    // Play Sound
+    var soundName =
+      world.fireball.sounds[
+        Math.floor(Math.random() * world.fireball.sounds.length)
+      ];
 
-    //console.log("camera", camera.getAttribute('position'));
+    const fireball_audio = document.querySelector(soundName).components.sound;
+    fireball_audio.stopSound();
+    fireball_audio.playSound();
+
+    // grab camera
+    const camera = document.getElementById("camera");
+    const cameraPos = camera.getAttribute("position");
+
+    console.log("camera", cameraPos);
 
     // Create new entity for the new object
     const fireball = document.createElement("a-entity");
 
     // Setup fireball attributes
-    fireball.setAttribute("position", "0 4 8");
+    fireball.setAttribute(
+      "position",
+      `${cameraPos.x} ${cameraPos.y - 3} ${cameraPos.z}`
+    );
+    fireball.setAttribute("scale", "2 2 2");
     fireball.setAttribute(
       "rotation",
       `${Math.random() * 360} ${Math.random() * 360} ${Math.random() * 360}`
@@ -55,10 +70,20 @@ AFRAME.registerComponent("spotxcomponent", {
     fireball.addEventListener("model-loaded", () => {
       fireball.setAttribute("visible", "true"); // Make fireball visible
 
+      spread_y =
+        Math.random() * 2 * world.fireball.spread_y - world.fireball.spread_y;
+      spread_z =
+        Math.random() * 2 * world.fireball.spread_z - world.fireball.spread_z;
+
+      console.log("spread y:", spread_y);
+      console.log("spread z:", spread_z);
+
       fireball.setAttribute("animation__first", {
         property: "position",
-        to: `${world.goblin.x} ${world.goblin.y + 8} ${world.goblin.z}`,
-        dur: "800",
+        to: `${world.goblin.x} ${world.goblin.y + 8 + spread_y} ${
+          world.goblin.z + spread_z
+        }`,
+        dur: "700",
         easing: "easeInQuad",
         loop: "false",
         autoplay: "true",
@@ -69,10 +94,24 @@ AFRAME.registerComponent("spotxcomponent", {
         property: "scale",
         to: ".5 .5 .5",
         easing: "easeOutElastic",
-        dur: 800,
+        dur: 750,
       });
 
       fireball.addEventListener("animationcomplete__first", () => {
+        // Play goblin hit 1/5 chance
+        if (Math.floor(Math.random() * 3) == 1) {
+          // Play Sound
+          var soundName =
+            world.goblin.onhit_sounds[
+              Math.floor(Math.random() * world.goblin.onhit_sounds.length)
+            ];
+
+          const goblinHit_audio =
+            document.querySelector(soundName).components.sound;
+          goblinHit_audio.stopSound();
+          goblinHit_audio.playSound();
+        }
+
         // remove fireball after animation.
         fireball.setAttribute("visible", "false");
         fireball.parentNode.removeChild(fireball);
@@ -98,6 +137,18 @@ AFRAME.registerComponent("spotxcomponent", {
     /* show Goblin by default */
     const goblin = document.getElementById("goblin_boss");
     goblin.setAttribute("visible", "true");
+
+    // Play goblin spawn
+    // Play Sound
+    var soundName =
+      world.goblin.onspawn_sounds[
+        Math.floor(Math.random() * world.goblin.onspawn_sounds.length)
+      ];
+
+    const goblinSpawn_audio =
+      document.querySelector(soundName).components.sound;
+    goblinSpawn_audio.stopSound();
+    goblinSpawn_audio.playSound();
 
     // Create hitbox for goblin.
     const hitbox = document.createElement("a-entity");
@@ -137,6 +188,21 @@ AFRAME.registerComponent("spotxcomponent", {
       Server has said 
     */
     console.log("process Death");
+
+    // Grab game state
+    let world = window.GameState;
+
+    // Play goblin death
+    // Play Sound
+    var soundName =
+      world.goblin.ondeath_sounds[
+        Math.floor(Math.random() * world.goblin.ondeath_sounds.length)
+      ];
+
+    const goblinDeath_audio =
+      document.querySelector(soundName).components.sound;
+    goblinDeath_audio.stopSound();
+    goblinDeath_audio.playSound();
 
     // Remove hitbox and goblin
     const hitbox = document.getElementById("goblin_hitbox");
@@ -224,10 +290,14 @@ AFRAME.registerComponent("spotxcomponent", {
         },
       },
       fireball: {
-        spread_x: 1,
-        spread_y: 1,
+        sounds: ["#fireball_sound1"],
+        spread_y: 1.5,
+        spread_z: 1.5,
       },
       goblin: {
+        onhit_sounds: ["#goblin_hit1"],
+        ondeath_sounds: ["#goblin_death1"],
+        onspawn_sounds: ["#goblin_spawn1"],
         hitbox_radius: 7,
         x: 0,
         y: 2,
