@@ -184,13 +184,13 @@ const ArPage = () => {
           onClick={() => window.io.emit("print-rooms")}
         />
         <Button label={"Log gamestate"} onClick={() => window.io.emit("log")} />
+        */}
         <Button
-          label={"Reset gamestate"}
+          label={"Give Grakk'thul a Max Potion"}
           onClick={() => window.io.emit("reset-gamestate")}
         />
-        <Button label={"Attack character"} onClick={attackCharacter} />
-        */}
         {/*
+        <Button label={"Attack character"} onClick={attackCharacter} />
         <Button
           label={"IFrame Event"}
           onClick={() => {
