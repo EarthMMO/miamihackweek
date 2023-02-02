@@ -191,7 +191,14 @@ const ArPage = () => {
             <Center>
               <Button
                 label={"Give Grakk'thul a Max Potion 🧪"}
-                onClick={() => window.io.emit("reset-gamestate")}
+                onClick={() => {
+                  window.io.emit("reset-gamestate");
+                  document
+                    .querySelector("#my-iframe")
+                    .contentWindow.AFRAME.components.spotxcomponent.Component.prototype.spawnGoblin(
+                      true
+                    );
+                }}
               />
             </Center>
             <Center>

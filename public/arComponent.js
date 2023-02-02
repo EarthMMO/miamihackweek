@@ -3,23 +3,26 @@ AFRAME.registerComponent("spotxcomponent", {
     console.log(`${characterId} is dead!`);
   },
   spawnGoblin(someData) {
-    console.log("Spawn Goblin from Server", someData);
-    let world = window.state;
+    console.log("SPAWN: Goblin from Server", someData);
+    let world = window.GameState;
     console.log("STATE", world);
 
     // Check if client is in combat already.
     if (
-      world.stage_list[world.current_stage].goblin_alive == true &&
-      someData.spawn == false
+      world.stage_list[world.current_stage].goblin_alive == true && someData == false
     ) {
       // Server states goblin is dead, client is showing goblin. clear goblin and hitbox.
+      console.log("SPAWN: Goblin is dead.");
       world.move_stage = true;
+
     } else if (
-      world.stage_list[world.current_stage].goblin_alive == false &&
-      someData.spawn == true
+      world.stage_list[world.current_stage].goblin_alive == false && someData == true
     ) {
       // server states goblin is alive, client is not showing goblin start showing.
+      console.log("SPAWN: Goblin is spawned.");
       world.move_stage = true;
+    }else {
+      console.log("SPAWN: nothing...");
     }
   },
   shootFireball() {
@@ -118,7 +121,7 @@ AFRAME.registerComponent("spotxcomponent", {
       });
     });
 
-    this.el.sceneEl.appendChild(fireball); // Add coin to scene
+    this.el.sceneEl.appendChild(fireball); // Add fireball to scene
   },
   processCombat() {
     /*
@@ -207,9 +210,12 @@ AFRAME.registerComponent("spotxcomponent", {
     // Remove hitbox and goblin
     const hitbox = document.getElementById("goblin_hitbox");
     hitbox.setAttribute("visible", "false");
+    hitbox.parentNode.removeChild(hitbox);
+    //this.el.sceneEl.removeChild(hitbox);
 
     const goblin = document.getElementById("goblin_boss");
     goblin.setAttribute("visible", "false");
+    
   },
   StageController(td) {
     /* 
@@ -224,6 +230,7 @@ AFRAME.registerComponent("spotxcomponent", {
 
     // Singleton in a async process
     if (world.move_stage) {
+      console.log("StageController: ", "moving...")
       if (world.moving_timer > 0) {
         world.moving_timer -= td;
         return;
@@ -231,9 +238,13 @@ AFRAME.registerComponent("spotxcomponent", {
       world.moving_timer = world.moving_time;
       world.move_stage = false;
 
-      world.current_stage =
-        world.current_stage +
-        (1 % Object.keys(window.GameState.stage_list).length);
+      console.log("current_stage:", world.current_stage);
+      console.log("mod: ",(Object.keys(window.GameState.stage_list).length + 1));
+      world.current_stage = ((world.current_stage + 1) % (Object.keys(window.GameState.stage_list).length + 1));
+      console.log("current_stage:", world.current_stage);
+      if (world.current_stage <= 0){
+        world.current_stage = 1;
+      }
 
       console.log("current stage", world.current_stage);
       console.log("world", world.stage_list[world.current_stage]);
