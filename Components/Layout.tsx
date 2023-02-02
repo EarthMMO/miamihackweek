@@ -5,7 +5,7 @@ const Layout = ({ children }) => {
   return (
     <>
       <Navigation />
-      <Container m={3}>{children}</Container>
+      <Container m={0} p={0}>{children}</Container>
     </>
   );
 };

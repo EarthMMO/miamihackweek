@@ -44,9 +44,9 @@ const Homepage = () => {
 
   if (isDisconnected || !w3aAddress) {
     return (
-    <Layout>
+    <>
       <GoblinMap />
-    </Layout>
+    </>
     )
   }
 
