@@ -14,6 +14,8 @@ import { useState, useEffect } from "react";
 import Button from "../Components/Button";
 import HealthBar from "../Components/HealthBar";
 import randomName from "random-name";
+import { useAccount } from "wagmi";
+import { useWeb3AuthHook } from "../utils/web3AuthContext";
 
 const ArPage = () => {
   const [earnedPoints, setEarnedPoints] = useState(0);
@@ -26,6 +28,9 @@ const ArPage = () => {
   const [rooms, setRooms] = useState(null);
   const [characters, setCharacters] = useState({});
   const [entities, setEntities] = useState({});
+
+  const { address, isConnecting, isDisconnected } = useAccount();
+  const { w3aAddress, w3aUserInfo, w3aAuthenticatedUser } = useWeb3AuthHook();
 
   useEffect(() => {
     window.io = io(BACKEND_API_URL);
@@ -43,6 +48,24 @@ const ArPage = () => {
     window.io.on("entities-update", (entities) => {
       console.log("entities-update", entities);
       setEntities(entities);
+    });
+    window.io.on("characters-death", (deadCharacterId, characters) => {
+      console.log(`${characters[deadCharacterId].name} is dead!`);
+      setCharacters(characters);
+      document
+        .querySelector("#my-iframe")
+        .contentWindow.AFRAME.components.spotxcomponent.Component.prototype.onCharacterDeath(
+          deadCharacterId
+        );
+    });
+    window.io.on("entities-death", (deadEntityId, entities) => {
+      console.log(`${entities[deadEntityId].name} is dead!`);
+      setEntities(entities);
+      document
+        .querySelector("#my-iframe")
+        .contentWindow.AFRAME.components.spotxcomponent.Component.prototype.spawnGoblin(
+          false
+        );
     });
 
     const randomFirstName = randomName.first();
