@@ -25,7 +25,110 @@ AFRAME.registerComponent("spotxcomponent", {
       console.log("SPAWN: nothing...");
     }
   },
-  shootFireball() {
+  spawnGoblinMinions(someData) {
+    /*
+      excepting data:
+      someData = {
+        1: true,
+        2: false,
+        3: false,
+        4: true
+      }
+    */
+    console.log("SPAWN Minions: Goblin from Server", someData);
+    let world = window.GameState;
+    
+    anyAlive = false;
+
+    // Spawn living, despawn dead.
+    for (let gn = 1; gn <= Object.keys(world.goblin_mins).length; gn++){
+
+      // Check if going from Alive to dead.
+      if (world.goblin_mins[gn].alive == true && someData[gn] == false){
+        // kill goblin minion
+        processDeathMinion(gn);
+      }
+      if (someData[gn]){
+        anyAlive = true;
+      }
+      world.goblin_mins[gn].alive = someData[gn];
+    }
+
+    this.processMinions();
+
+    if (anyAlive){
+      // Let game know that this is first time for sheilds.
+      world.goblin.init_shield = true;
+
+      // remove boss hitbox.
+      const hitbox = document.getElementById("goblin_hitbox");
+      hitbox.setAttribute("visible", "false");
+      hitbox.parentNode.removeChild(hitbox);
+      
+      // Add Shield
+      const shield = document.getElementById("goblin_shield");
+      shield.setAttribute("visible", "true");
+      shield.setAttribute(
+        "position",
+        `${world.goblin.x} ${world.goblin.y + 8} ${world.goblin.z}`
+      );
+      
+      
+
+    }else{
+
+      // Check that init_shield stage was hit.
+      if(world.goblin.init_shield){
+        // Add boss hitbox.
+        // Create hitbox for goblin.
+        const hitbox = document.createElement("a-entity");
+        const geometry = `primitive: sphere; radius: ${world.goblin.hitbox_radius}`;
+        var material = "";
+
+        if (world.debug) {
+          material = "color:#196F3D;transparent:true;opacity:0.3";
+        } else {
+          material = "color:#196F3D;transparent:true;opacity:0";
+        }
+
+        hitbox.setAttribute("geometry", geometry);
+        hitbox.setAttribute("material", material);
+        hitbox.setAttribute(
+          "position",
+          `${world.goblin.x} ${world.goblin.y + 8} ${world.goblin.z}`
+        );
+        hitbox.setAttribute("class", "cantap");
+        hitbox.setAttribute("visible", "true");
+        hitbox.setAttribute("id", "goblin_hitbox");
+
+        // Add items to the mine object.
+        this.el.sceneEl.appendChild(hitbox);
+
+        // Add Click listener to hitbox.
+        hitbox.addEventListener("click", (event) => {
+
+          // grab camera
+          const camera = document.getElementById("camera");
+          const cameraPos = camera.getAttribute("position");
+
+          // shoot fireball
+          this.shootFireball(cameraPos, world.goblin);
+
+          // Send attack from the player.
+          this.gameUpdate();
+        });
+
+        // Add Shield
+        const shield = document.getElementById("goblin_shield");
+        shield.setAttribute("visible", "false");
+        shield.parentNode.removeChild(shield);
+      }
+      
+
+    }
+  },
+
+  shootFireball(A, B) {
     console.log("shooting fireball");
     // Grab game state
     let world = window.GameState;
@@ -41,10 +144,10 @@ AFRAME.registerComponent("spotxcomponent", {
     fireball_audio.playSound();
 
     // grab camera
-    const camera = document.getElementById("camera");
-    const cameraPos = camera.getAttribute("position");
+    // const camera = document.getElementById("camera");
+    // const cameraPos = camera.getAttribute("position");
 
-    console.log("camera", cameraPos);
+    // console.log("camera", cameraPos);
 
     // Create new entity for the new object
     const fireball = document.createElement("a-entity");
@@ -52,7 +155,8 @@ AFRAME.registerComponent("spotxcomponent", {
     // Setup fireball attributes
     fireball.setAttribute(
       "position",
-      `${cameraPos.x} ${cameraPos.y - 3} ${cameraPos.z}`
+      //`${cameraPos.x} ${cameraPos.y - 3} ${cameraPos.z}`
+      `${A.x} ${A.y - 3} ${A.z}`
     );
     fireball.setAttribute("scale", "2 2 2");
     fireball.setAttribute(
@@ -78,14 +182,13 @@ AFRAME.registerComponent("spotxcomponent", {
       spread_z =
         Math.random() * 2 * world.fireball.spread_z - world.fireball.spread_z;
 
-      console.log("spread y:", spread_y);
-      console.log("spread z:", spread_z);
+      //console.log("spread y:", spread_y);
+      //console.log("spread z:", spread_z);
 
       fireball.setAttribute("animation__first", {
         property: "position",
-        to: `${world.goblin.x} ${world.goblin.y + 8 + spread_y} ${
-          world.goblin.z + spread_z
-        }`,
+        //to: `${world.goblin.x} ${world.goblin.y + 8 + spread_y} ${world.goblin.z + spread_z}`,
+        to: `${B.x} ${B.y + 8 + spread_y} ${B.z + spread_z}`,
         dur: "700",
         easing: "easeInQuad",
         loop: "false",
@@ -101,6 +204,7 @@ AFRAME.registerComponent("spotxcomponent", {
       });
 
       fireball.addEventListener("animationcomplete__first", () => {
+
         // Play goblin hit 1/5 chance
         if (Math.floor(Math.random() * 3) == 1) {
           // Play Sound
@@ -115,6 +219,8 @@ AFRAME.registerComponent("spotxcomponent", {
           goblinHit_audio.playSound();
         }
 
+
+
         // remove fireball after animation.
         fireball.setAttribute("visible", "false");
         fireball.parentNode.removeChild(fireball);
@@ -122,6 +228,90 @@ AFRAME.registerComponent("spotxcomponent", {
     });
 
     this.el.sceneEl.appendChild(fireball); // Add fireball to scene
+  },
+  processMinions(){
+    /* 
+      Setup Minions
+
+    */
+
+    // Grab game state
+    let world = window.GameState;
+
+    /* show Goblin by default */
+    // const gm1 = document.getElementById("goblin_min1");
+    // const gm2 = document.getElementById("goblin_min2");
+    // const gm3 = document.getElementById("goblin_min3");
+    // const gm4 = document.getElementById("goblin_min4");
+
+    for (let gn = 1; gn <= Object.keys(world.goblin_mins).length; gn++){
+      if(world.goblin_mins[gn].alive){
+        // min alive
+        gm = document.getElementById(`goblin_min${gn}`);
+        gm.setAttribute("visible", "true");
+
+        // Create hitbox for goblin.
+        const hitbox = document.createElement("a-entity");
+        const geometry = `primitive: sphere; radius: ${world.goblin_mins[gn].hitbox_radius}`;
+        var material = "";
+
+        if (world.debug) {
+          material = "color:#196F3D;transparent:true;opacity:0.3";
+        } else {
+          material = "color:#196F3D;transparent:true;opacity:0";
+        }
+
+        hitbox.setAttribute("geometry", geometry);
+        hitbox.setAttribute("material", material);
+        hitbox.setAttribute(
+          "position",
+          `${world.goblin_mins[gn].x} ${world.goblin_mins[gn].y + 6} ${world.goblin_mins[gn].z}`
+        );
+        hitbox.setAttribute("class", "cantap");
+        hitbox.setAttribute("visible", "true");
+        hitbox.setAttribute("id", `goblin_min${gn}_hb`);
+
+        // Add items to the mine object.
+        this.el.sceneEl.appendChild(hitbox);
+
+        // Add Click listener to hitbox.
+        hitbox.addEventListener("click", (event) => {
+          // grab camera
+        const camera = document.getElementById("camera");
+        const cameraPos = camera.getAttribute("position");
+
+        // shoot fireball
+        this.shootFireball(cameraPos, world.goblin_mins[gn]);
+
+        // Send attack from the player.
+        this.gameMinUpdate(gn);
+
+        });
+        
+      }else{
+        // min dead
+
+      }
+    } 
+    
+
+    // gm1.setAttribute("visible", "true");
+    // gm2.setAttribute("visible", "true");
+    // gm3.setAttribute("visible", "true");
+    // gm4.setAttribute("visible", "true");
+
+    // Play goblin spawn
+    // Play Sound
+    // var soundName =
+    //   world.goblin.onspawn_sounds[
+    //     Math.floor(Math.random() * world.goblin.onspawn_sounds.length)
+    //   ];
+
+    // const goblinSpawn_audio =
+    //   document.querySelector(soundName).components.sound;
+    // goblinSpawn_audio.stopSound();
+    // goblinSpawn_audio.playSound();
+
   },
   processCombat() {
     /*
@@ -179,8 +369,13 @@ AFRAME.registerComponent("spotxcomponent", {
 
     // Add Click listener to hitbox.
     hitbox.addEventListener("click", (event) => {
+
+      // grab camera
+      const camera = document.getElementById("camera");
+      const cameraPos = camera.getAttribute("position");
+
       // shoot fireball
-      this.shootFireball();
+      this.shootFireball(cameraPos, world.goblin);
 
       // Send attack from the player.
       this.gameUpdate();
@@ -214,6 +409,37 @@ AFRAME.registerComponent("spotxcomponent", {
     //this.el.sceneEl.removeChild(hitbox);
 
     const goblin = document.getElementById("goblin_boss");
+    goblin.setAttribute("visible", "false");
+    
+  },
+  processDeathMinion(gn) {
+    /* 
+      Server has said 
+    */
+    console.log("process Minion Death");
+
+    // Grab game state
+    let world = window.GameState;
+
+    // Play goblin death
+    // Play Sound
+    var soundName =
+      world.goblin.ondeath_sounds[
+        Math.floor(Math.random() * world.goblin.ondeath_sounds.length)
+      ];
+
+    const goblinDeath_audio =
+      document.querySelector(soundName).components.sound;
+    goblinDeath_audio.stopSound();
+    goblinDeath_audio.playSound();
+
+    // Remove hitbox and goblin
+    const hitbox = document.getElementById(`goblin_min${gn}_hb`);
+    hitbox.setAttribute("visible", "false");
+    hitbox.parentNode.removeChild(hitbox);
+    //this.el.sceneEl.removeChild(hitbox);
+
+    const goblin = document.getElementById(`goblin_min${gn}`);
     goblin.setAttribute("visible", "false");
     
   },
@@ -252,6 +478,7 @@ AFRAME.registerComponent("spotxcomponent", {
       if (world.stage_list[world.current_stage].goblin_alive == true) {
         // Goblin alive.
         this.processCombat();
+        this.processMinions();
       } else if (world.stage_list[world.current_stage].goblin_alive == false) {
         // Goblin Dead
         //const mine_high = document.getElementById("mine_high");
@@ -275,6 +502,14 @@ AFRAME.registerComponent("spotxcomponent", {
     };
     console.log("client sending attack!");
     let evtObj = new CustomEvent("attack", { detail: message });
+    window.parent.dispatchEvent(evtObj);
+  },
+  gameMinUpdate(n) {
+    let message = {
+      attack: n,
+    };
+    console.log(`client sending attack! to min ${n}`);
+    let evtObj = new CustomEvent("attackMin", { detail: message });
     window.parent.dispatchEvent(evtObj);
   },
   init() {
@@ -305,14 +540,45 @@ AFRAME.registerComponent("spotxcomponent", {
         spread_y: 1.5,
         spread_z: 1.5,
       },
+      goblin_mins : {
+        1: {
+          alive: false,
+          hitbox_radius: 5,
+          x:-12,
+          y:0,
+          z:-20
+        },
+        2: {
+          alive: false,
+          hitbox_radius: 5,
+          x:-4,
+          y:0,
+          z:-15
+        },
+        3: {
+          alive: false,
+          hitbox_radius: 5,
+          x:4,
+          y:0,
+          z:-15
+        },
+        4: {
+          alive: false,
+          hitbox_radius: 5,
+          x:12,
+          y:0,
+          z:-20
+        }
+      },
       goblin: {
+        init_shield: false,
         onhit_sounds: ["#goblin_hit1"],
         ondeath_sounds: ["#goblin_death1"],
         onspawn_sounds: ["#goblin_spawn1"],
         hitbox_radius: 7,
         x: 0,
         y: 2,
-        z: -16,
+        z: -30,
       },
     };
 
@@ -326,19 +592,23 @@ AFRAME.registerComponent("spotxcomponent", {
     const goblin = document.getElementById("goblin_boss");
     goblin.setAttribute("visible", "false");
 
+    // hide Shield
+    const shield = document.getElementById("goblin_shield");
+    shield.setAttribute("visible", "false");
+
+    const gm1 = document.getElementById("goblin_min1");
+    const gm2 = document.getElementById("goblin_min2");
+    const gm3 = document.getElementById("goblin_min3");
+    const gm4 = document.getElementById("goblin_min4");
+
+    gm1.setAttribute("visible", "false");
+    gm2.setAttribute("visible", "false");
+    gm3.setAttribute("visible", "false");
+    gm4.setAttribute("visible", "false");
+
     //const fireball = document.getElementById("fireball");
     //fireball.setAttribute("visible", "false");
 
-    const mine_high = document.getElementById("mine_high");
-    const mine_medium = document.getElementById("mine_medium");
-    const mine_low = document.getElementById("mine_low");
-    const mine_empty = document.getElementById("mine_empty");
-
-    mine_high.setAttribute("visible", "false");
-    mine_medium.setAttribute("visible", "false");
-    mine_low.setAttribute("visible", "false");
-    mine_empty.setAttribute("visible", "false");
-    //});
   },
   tick(time, timeDelta) {
     /*
