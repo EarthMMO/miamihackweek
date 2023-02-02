@@ -186,7 +186,7 @@ const ArPage = () => {
         <Button label={"Log gamestate"} onClick={() => window.io.emit("log")} />
         */}
         <Center>
-          <div className="flex-col">
+          <div className="absolute flex-col top-3">
             <div>❗use google chrome if it doesn't load❗</div>
             <Center>
               <Button
