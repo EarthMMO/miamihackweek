@@ -182,11 +182,15 @@ const ArPage = () => {
           onClick={() => window.io.emit("clear", "ONE")}
         />
         <Button label={"Log gamestate"} onClick={() => window.io.emit("log")} />
+            <Button
+              label={"Print rooms"}
+              onClick={() => window.io.emit("print-rooms")}
+            />
         */}
       <Center className="flex-col w-full">
         <div className="flex-col">
           <Center>
-            <div>❗use google chrome if it doesn't load❗</div>
+            <div>Tap goblin to shoot ☄️, bring your friends!</div>
           </Center>
           <Center>
             <Button
@@ -200,13 +204,6 @@ const ArPage = () => {
                   );
               }}
             />
-            <Button
-              label={"Print rooms"}
-              onClick={() => window.io.emit("print-rooms")}
-            />
-          </Center>
-          <Center>
-            <div>tap goblin to shoot ☄️, bring your friends</div>
           </Center>
         </div>
       </Center>
