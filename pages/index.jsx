@@ -185,10 +185,20 @@ const ArPage = () => {
         />
         <Button label={"Log gamestate"} onClick={() => window.io.emit("log")} />
         */}
-        <Button
-          label={"Give Grakk'thul a Max Potion"}
-          onClick={() => window.io.emit("reset-gamestate")}
-        />
+        <Center>
+          <div className="flex-col">
+            <div>❗use google chrome if it doesn't load❗</div>
+            <Center>
+              <Button
+                label={"Give Grakk'thul a Max Potion 🧪"}
+                onClick={() => window.io.emit("reset-gamestate")}
+              />
+            </Center>
+            <Center>
+              <div>tap goblin to shoot ☄️, bring your friends</div>
+            </Center>
+          </div>
+        </Center>
         {/*
         <Button label={"Attack character"} onClick={attackCharacter} />
         <Button
