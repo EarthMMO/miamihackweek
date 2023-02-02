@@ -189,10 +189,10 @@ const ArPage = () => {
         */}
       <Center className="flex-col w-full">
         <div className="flex-col">
-          <Center>
-            <div>Tap goblin to shoot ☄️, bring your friends!</div>
+          <Center className="mb-2">
+            <b>Tap goblin to shoot ☄️, bring your friends!</b>
           </Center>
-          <Center>
+          <Center className="mb-2">
             <Button
               label={"Give Grakk'thul a Max Potion 🧪"}
               onClick={() => {
