@@ -3,6 +3,7 @@ import Head from 'next/head';
 import Map, {Marker, GeolocateControl, Popup} from 'react-map-gl';
 import { useRouter } from 'next/navigation';
 import GameModal from './GameModal'
+import axios from 'axios';
 
 const { useRef, useEffect, useState } = React;
 
@@ -54,11 +55,43 @@ const goblinMap = () => {
     return c * r * 1000;
   };
 
+  function sendNFT(emailAddress, web3Address) {
+    let options = null;
+    if (emailAddress) {
+      options = {
+        method: 'POST',
+        url: 'https://www.crossmint.com/api/2022-06-09/collections/default-polygon/nfts',
+        headers: {
+          'content-type': 'application/json',
+          'x-client-secret': 'sk_live.cb3lQN9Q.cONyod8OmYRwcpy4PmAjCWLIyLAudvtJ',
+          'x-project-id': '17b7b34b-712d-4469-93ae-e653e8cf8938'
+        },
+        data: {
+          recipient: `email:${emailAddress}:polygon`,
+          metadata: {
+            name: 'Staff of Grakk\'thul',
+            image: 'https://bafybeieezdqjulcgtjpnsc3gsipwnnlle2shxetzxqrq7ulipejgesegia.ipfs.nftstorage.link/',
+            description: 'Staff dropped after defeating Grakk\'thul'
+          }
+        }
+      };
+    }
+
+    axios
+      .request(options)
+      .then(function (response) {
+        console.log(response.data);
+      })
+      .catch(function (error) {
+        console.error(error);
+      });
+  }
+
   const promptMessage = () => {
-    let person = prompt("Please enter your name");
-    if (person != null) {
-      console.log( "Hello " + person + "! How are you today?")
-      router.push('/ar-page')
+    // let web3 = prompt("Please enter your web3Address. To enter email, leave blank and press ok");
+    let email = prompt("Please enter your email");
+    if (email) {
+      sendNFT(email, null)
     }
   }
 

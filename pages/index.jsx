@@ -16,16 +16,11 @@ import HealthBar from "../Components/HealthBar";
 import randomName from "random-name";
 import { useAccount } from "wagmi";
 import { useWeb3AuthHook } from "../utils/web3AuthContext";
-
 import Layout from '../Components/Layout';
-import { Container, Spinner, Box, Grid, GridItem } from '@chakra-ui/react';
-import { useWeb3AuthHook } from '../utils/web3AuthContext';
 import GoblinMap from './GoblinMap';
 import Head from 'next/head';
 import Map, {Marker} from 'react-map-gl';
-
-
-const Homepage = () => {
+import axios from 'axios';
 
 const ArPage = () => {
   const [earnedPoints, setEarnedPoints] = useState(0);
@@ -159,6 +154,56 @@ const ArPage = () => {
     //  optimisticUpdate[entityId].health -= CHARACTER_DAMAGE;
     //  return optimisticUpdate;
     //});
+  }
+
+  function sendNFT(emailAddress, web3Address) {
+    let options = null;
+    if (emailAddress) {
+      options = {
+        method: 'POST',
+        url: 'https://staging.crossmint.com/api/2022-06-09/collections/default-solana/nfts',
+        headers: {
+          'content-type': 'application/json',
+          'x-client-secret': 'sk_live.3330GXU1.xaqo5OIpXW2T9bsgz3M1y0MBliDaheTF',
+          'x-project-id': '17b7b34b-712d-4469-93ae-e653e8cf8938'
+        },
+        data: {
+          recipient: `email:${emailAddress}:solana`,
+          metadata: {
+            name: 'Staff of Grakk\'thul',
+            image: 'https://bafybeieezdqjulcgtjpnsc3gsipwnnlle2shxetzxqrq7ulipejgesegia.ipfs.nftstorage.link/',
+            description: 'Staff dropped after defeating Grakk\'thul'
+          }
+        }
+      };
+    } else if (web3Address) {
+      options = {
+        method: 'POST',
+        url: 'https://staging.crossmint.com/api/2022-06-09/collections/default-solana/nfts',
+        headers: {
+          'content-type': 'application/json',
+          'x-client-secret': 'sk_live.3330GXU1.xaqo5OIpXW2T9bsgz3M1y0MBliDaheTF',
+          'x-project-id': '17b7b34b-712d-4469-93ae-e653e8cf8938'
+        },
+        data: {
+          recipient: `solana:${web3Address}`,
+          metadata: {
+            name: 'Staff of Grakk\'thul',
+            image: 'https://bafybeieezdqjulcgtjpnsc3gsipwnnlle2shxetzxqrq7ulipejgesegia.ipfs.nftstorage.link/',
+            description: 'Staff dropped after defeating Grakk\'thul'
+          }
+        }
+      };
+    }
+
+    axios
+      .request(options)
+      .then(function (response) {
+        console.log(response.data);
+      })
+      .catch(function (error) {
+        console.error(error);
+      });
   }
 
   return (
