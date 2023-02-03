@@ -105,11 +105,14 @@ const ArPage = () => {
 
   useEffect(() => {
     //iFrame to React communication handler
-    const handler = (event) => {
-      //let pts = Math.min(event.detail.coinPoints * 100, 4500);
-      console.log("react attack recieved!", event.detail.attack);
-      attackEntity();
-      //setEarnedPoints(pts);
+    const attackBossHandler = (event) => {
+      console.log("Grakk'thul was attacked!", event.detail.attack);
+      attackEntity(0);
+    };
+    const attackMinionHandler = (event) => {
+      const entityId = event.detail.attack;
+      console.log(`Minion ${entityId} was attacked!`);
+      attackEntity(entityId);
     };
 
     const gameStart = () => {
@@ -118,7 +121,8 @@ const ArPage = () => {
     };
 
     //iFrame to React communication event listener
-    window.addEventListener("attack", handler);
+    window.addEventListener("attack", attackBossHandler);
+    window.addEventListener("attackMin", attackMinionHandler);
     window.addEventListener("gameStart", gameStart);
 
     //iFrame to React communication handler cleanup
@@ -157,8 +161,7 @@ const ArPage = () => {
     //});
   }
 
-  function attackEntity() {
-    const entityId = 0;
+  function attackEntity(entityId) {
     const CHARACTER_DAMAGE = 860;
     window.io.emit("attackEntity", entityId, CHARACTER_DAMAGE);
     //setEntities((prevEntities) => {
