@@ -67,6 +67,20 @@ const ArPage = () => {
           false
         );
     });
+    window.io.on("spawn-adds", (entities) => {
+      console.log("spawn-adds", entities);
+      setEntities(entities);
+      document
+        .querySelector("#my-iframe")
+        .contentWindow.AFRAME.components.spotxcomponent.Component.prototype.spawnGoblinMinions(
+          {
+            1: true,
+            2: true,
+            3: true,
+            4: true,
+          }
+        );
+    });
 
     let name = prompt("What should we call you, adventurer?");
     if (!name) {
@@ -145,7 +159,7 @@ const ArPage = () => {
 
   function attackEntity() {
     const entityId = 0;
-    const CHARACTER_DAMAGE = 86;
+    const CHARACTER_DAMAGE = 860;
     window.io.emit("attackEntity", entityId, CHARACTER_DAMAGE);
     //setEntities((prevEntities) => {
     //  const optimisticUpdate = { ...prevEntities };
@@ -226,8 +240,8 @@ const ArPage = () => {
           }}
         />
         */}
-        <span className={`flex flex-row mt-4 w-full`}>
-          <div className={`w-full flex flex-col justify-start`}>
+        <span className={`flex flex-row mt-4 w-full justify-between`}>
+          <div className={`w-fit flex flex-col`}>
             {Object.keys(characters).map((characterId) => {
               const character = characters[characterId];
               return (
@@ -238,7 +252,7 @@ const ArPage = () => {
               );
             })}
           </div>
-          <div className={`w-full flex justify-end`}>
+          <div className={`w-fit flex flex-col`}>
             {Object.keys(entities).map((entityId) => {
               const entity = entities[entityId];
               return (
