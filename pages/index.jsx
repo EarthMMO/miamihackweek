@@ -316,12 +316,6 @@ const ArPage = () => {
               Hey {userId}, tap goblins to shoot em, and bring your friends!
             </b>
           </Center>
-          <Center className="mb-2">
-            <Button
-              label={"Give Grakk'thul a Max Potion 🧪"}
-              onClick={() => window.io.emit("reset-gamestate")}
-            />
-          </Center>
         </div>
         <div
           className={`${
