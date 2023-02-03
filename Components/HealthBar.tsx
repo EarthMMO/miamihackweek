@@ -48,6 +48,7 @@ export default function HealthBar({
   height = 24,
   enemy = false,
 }) {
+  if (character.isDead && enemy) return null;
   return (
     <div className="flex-col">
       <div className={`ml-2 text-black font-bold`}>{character.name}</div>
@@ -55,7 +56,7 @@ export default function HealthBar({
         style={{
           borderRadius: "3px",
           border: "1px solid black",
-          width: enemy ? 125 : 86,
+          width: enemy ? 122 : 100,
           height,
           backgroundColor: "#000000",
         }}

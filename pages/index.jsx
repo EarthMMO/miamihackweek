@@ -34,6 +34,7 @@ const ArPage = () => {
   const [rooms, setRooms] = useState(null);
   const [characters, setCharacters] = useState({});
   const [entities, setEntities] = useState({});
+  const [delayedSpawn, setDelayedSpawn] = useState(false);
 
   const { address, isConnecting, isDisconnected } = useAccount();
   const {
@@ -61,6 +62,21 @@ const ArPage = () => {
     window.io.on("entities-update", (entities) => {
       console.log("entities-update", entities);
       setEntities(entities);
+      document
+        .querySelector("#my-iframe")
+        .contentWindow.AFRAME.components.spotxcomponent.Component.prototype.spawnGoblin(
+          !entities[0].isDead
+        );
+      document
+        .querySelector("#my-iframe")
+        .contentWindow.AFRAME.components.spotxcomponent.Component.prototype.spawnGoblinMinions(
+          {
+            1: !entities[1].isDead,
+            2: !entities[2].isDead,
+            3: !entities[3].isDead,
+            4: !entities[4].isDead,
+          }
+        );
     });
     window.io.on("characters-death", (deadCharacterId, characters) => {
       console.log(`${characters[deadCharacterId].name} is dead!`);
@@ -134,12 +150,7 @@ const ArPage = () => {
     setUserId(userId);
     window.io.emit("identity", userId);
     window.io.emit("subscribe", "ONE", [userId]);
-    window.io.emit("sync-gamestate", (response) => {
-      console.log("CHARACTERS", response.characters);
-      console.log("ENTITIES", response.entities);
-      setCharacters(response.characters);
-      setEntities(response.entities);
-    });
+    window.io.emit("sync-gamestate");
 
     //iFrame to React communication handler
     const attackBossHandler = (event) => {
