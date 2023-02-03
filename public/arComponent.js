@@ -25,6 +25,11 @@ AFRAME.registerComponent("spotxcomponent", {
       console.log("SPAWN: nothing...");
     }
   },
+
+  attackPoints(points){
+    let world = window.GameState;
+    world.textbox_value = points;
+  },
   innerSpawnGoblinMinions(){
 
     this.processMinions();
@@ -152,7 +157,7 @@ AFRAME.registerComponent("spotxcomponent", {
     const new_TextBox = document.createElement('a-entity');
     new_TextBox.setAttribute(
       'text',
-      `anchor:center;baseline:center;align:center;wrapCount:20;transparent:true;opacity:0.7;color:#FAD902;value:-${world.textbox_value}`
+      `anchor:center;baseline:center;align:center;wrapCount:20;transparent:true;opacity:0.7;color:#D0021B;value:-${world.textbox_value}`
     );
     new_TextBox.setAttribute(
       'geometry',
@@ -165,7 +170,7 @@ AFRAME.registerComponent("spotxcomponent", {
     
     new_TextBox.setAttribute('position', `${B.x} ${B.y + 8 + spread_y} ${B.z + spread_z}`);
     new_TextBox.setAttribute('visible', 'false');
-    new_TextBox.setAttribute('scale', '4 4 4');
+    new_TextBox.setAttribute('scale', '5 5 5');
 
     // Add text box to scene.
     this.el.sceneEl.appendChild(new_TextBox);
@@ -260,7 +265,7 @@ AFRAME.registerComponent("spotxcomponent", {
         // Add Animation
         new_TextBox.setAttribute('animation__textFirst', {
           property: 'position',
-          to: `${B.x} ${B.y + 12 + spread_y} ${B.z + spread_z + 5}`,
+          to: `${B.x} ${B.y + 16 + spread_y} ${B.z + spread_z + 8}`,
           dur: '1000',
           easing: 'easeInOutQuad',
           loop: 'false',
