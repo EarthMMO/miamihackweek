@@ -16,12 +16,12 @@ import HealthBar from "../Components/HealthBar";
 import randomName from "random-name";
 import { useAccount } from "wagmi";
 import { useWeb3AuthHook } from "../utils/web3AuthContext";
-import Layout from '../Components/Layout';
-import GoblinMap from './GoblinMap';
-import Head from 'next/head';
-import Map, {Marker} from 'react-map-gl';
-import axios from 'axios';
-import { Web3Button } from '@web3modal/react';
+import Layout from "../Components/Layout";
+import GoblinMap from "./GoblinMap";
+import Head from "next/head";
+import Map, { Marker } from "react-map-gl";
+import axios from "axios";
+import { Web3Button } from "@web3modal/react";
 
 const ArPage = () => {
   const [earnedPoints, setEarnedPoints] = useState(0);
@@ -229,45 +229,47 @@ const ArPage = () => {
 
   function sendNFT(web3Address) {
     let options = {
-      method: 'POST',
-      url: 'https://www.crossmint.com/api/2022-06-09/collections/default-polygon/nfts',
+      method: "POST",
+      url: "https://www.crossmint.com/api/2022-06-09/collections/default-polygon/nfts",
       headers: {
-        'content-type': 'application/json',
-        'x-client-secret': 'sk_live.cb3lQN9Q.cONyod8OmYRwcpy4PmAjCWLIyLAudvtJ',
-        'x-project-id': '17b7b34b-712d-4469-93ae-e653e8cf8938'
+        "content-type": "application/json",
+        "x-client-secret": "sk_live.cb3lQN9Q.cONyod8OmYRwcpy4PmAjCWLIyLAudvtJ",
+        "x-project-id": "17b7b34b-712d-4469-93ae-e653e8cf8938",
       },
       data: {
         recipient: `polygon:${web3Address}`,
         metadata: {
-          name: 'Staff of Grakk\'thul',
-          image: 'https://bafybeieezdqjulcgtjpnsc3gsipwnnlle2shxetzxqrq7ulipejgesegia.ipfs.nftstorage.link/',
-          description: 'Staff dropped after defeating Grakk\'thul'
-        }
-      }
+          name: "Staff of Grakk'thul",
+          image:
+            "https://bafybeieezdqjulcgtjpnsc3gsipwnnlle2shxetzxqrq7ulipejgesegia.ipfs.nftstorage.link/",
+          description: "Staff dropped after defeating Grakk'thul",
+        },
+      },
     };
 
     axios
       .request(options)
       .then(function (response) {
         console.log(response.data);
-        alert(`CONGRATS! NFT sent to ${web3Address}`)
+        alert(`CONGRATS! NFT sent to ${web3Address}`);
       })
       .catch(function (error) {
         console.error(error);
-        alert('NFT NOT SENT! NFT\'s may have run out or there may be a problem with your wallet.')
+        alert(
+          "NFT NOT SENT! NFT's may have run out or there may be a problem with your wallet."
+        );
       });
   }
 
   useEffect(() => {
     if (address) {
-      console.log(address, 'WEB3 ADDRESS')
-      sendNFT(address)
+      console.log(address, "WEB3 ADDRESS");
+      sendNFT(address);
     }
   }, [address]);
 
   return (
     <div>
-      {"YOUR NAME IS " + userId}
       {/*
       <Link href="/">
         <IconButton size={"md"} icon={<ArrowBackIcon />}>
@@ -307,7 +309,7 @@ const ArPage = () => {
           </div>
         )
       } */}
-      <div className="flex float-right m-2" >
+      <div className="flex float-right m-2">
         {/* <div className="m-2" >
           Connect wallet to collect NFT before they run out!---&gt;
         </div> */}
@@ -316,7 +318,9 @@ const ArPage = () => {
       <Center className="flex-col w-full">
         <div className="flex-col">
           <Center className="mb-2">
-            <b>Tap goblin to shoot ☄️, bring your friends!</b>
+            <b>
+              Hey {userId}, tap goblins to shoot em, and bring your friends!
+            </b>
           </Center>
           <Center className="mb-2">
             <Button
