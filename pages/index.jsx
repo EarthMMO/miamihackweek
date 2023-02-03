@@ -72,10 +72,27 @@ const ArPage = () => {
           false
         );
     });
+    window.io.on("spawn-adds", (entities) => {
+      console.log("spawn-adds", entities);
+      setEntities(entities);
+      document
+        .querySelector("#my-iframe")
+        .contentWindow.AFRAME.components.spotxcomponent.Component.prototype.spawnGoblinMinions(
+          {
+            1: true,
+            2: true,
+            3: true,
+            4: true,
+          }
+        );
+    });
 
-    const randomFirstName = randomName.first();
-    window.io.emit("identity", randomFirstName);
-    window.io.emit("subscribe", "ONE", [randomFirstName]);
+    let name = prompt("What should we call you, adventurer?");
+    if (!name) {
+      name = randomName.first();
+    }
+    window.io.emit("identity", name);
+    window.io.emit("subscribe", "ONE", [name]);
     window.io.emit("sync-gamestate", (response) => {
       console.log("CHARACTERS", response.characters);
       console.log("ENTITIES", response.entities);
@@ -147,7 +164,7 @@ const ArPage = () => {
 
   function attackEntity() {
     const entityId = 0;
-    const CHARACTER_DAMAGE = 86;
+    const CHARACTER_DAMAGE = 860;
     window.io.emit("attackEntity", entityId, CHARACTER_DAMAGE);
     //setEntities((prevEntities) => {
     //  const optimisticUpdate = { ...prevEntities };
@@ -207,7 +224,7 @@ const ArPage = () => {
   }
 
   return (
-    <>
+    <div>
       {/*
       <Link href="/">
         <IconButton size={"md"} icon={<ArrowBackIcon />}>
@@ -215,8 +232,7 @@ const ArPage = () => {
         </IconButton>
       </Link>
       */}
-      <Container fluid mt={8}>
-        {/*
+      {/*
         <input
           type="text"
           value={name}
@@ -234,33 +250,33 @@ const ArPage = () => {
           label={"Clear"}
           onClick={() => window.io.emit("clear", "ONE")}
         />
-        <Button
-          label={"Print rooms"}
-          onClick={() => window.io.emit("print-rooms")}
-        />
         <Button label={"Log gamestate"} onClick={() => window.io.emit("log")} />
+            <Button
+              label={"Print rooms"}
+              onClick={() => window.io.emit("print-rooms")}
+            />
         */}
-        <Center>
-          <div className="absolute flex-col top-3">
-            <div>❗use google chrome if it doesn't load❗</div>
-            <Center>
-              <Button
-                label={"Give Grakk'thul a Max Potion 🧪"}
-                onClick={() => {
-                  window.io.emit("reset-gamestate");
-                  document
-                    .querySelector("#my-iframe")
-                    .contentWindow.AFRAME.components.spotxcomponent.Component.prototype.spawnGoblin(
-                      true
-                    );
-                }}
-              />
-            </Center>
-            <Center>
-              <div>tap goblin to shoot ☄️, bring your friends</div>
-            </Center>
-          </div>
-        </Center>
+      <Center className="flex-col w-full">
+        <div className="flex-col">
+          <Center className="mb-2">
+            <b>Tap goblin to shoot ☄️, bring your friends!</b>
+          </Center>
+          <Center className="mb-2">
+            <Button
+              label={"Give Grakk'thul a Max Potion 🧪"}
+              onClick={() => {
+                window.io.emit("reset-gamestate");
+                document
+                  .querySelector("#my-iframe")
+                  .contentWindow.AFRAME.components.spotxcomponent.Component.prototype.spawnGoblin(
+                    true
+                  );
+              }}
+            />
+          </Center>
+        </div>
+      </Center>
+      <div className="absolute w-full justify-between pointer-events-none">
         {/*
         <Button label={"Attack character"} onClick={attackCharacter} />
         <Button
@@ -279,36 +295,44 @@ const ArPage = () => {
           }}
         />
         */}
-        <span className={`flex flex-row mt-4 justify-between`}>
-          <div className={`w-full flex justify-start`}>
-            <HealthBar character={characters[0]} />
-            {Object.keys(characters)
-              .slice(1)
-              .map((playerId) => (
-                <HealthBar character={characters[playerId]} partyMember />
-              ))}
+        <span className={`flex flex-row mt-4 w-full justify-between`}>
+          <div className={`w-fit flex flex-col`}>
+            {Object.keys(characters).map((characterId) => {
+              const character = characters[characterId];
+              return (
+                <HealthBar
+                  character={character}
+                  percentage={character.health / character.maxHealth}
+                />
+              );
+            })}
           </div>
-          <div className={`w-full flex justify-end`}>
-            {Object.keys(entities).map((entityId) => (
-              <HealthBar character={entities[entityId]} enemy />
-            ))}
+          <div className={`w-fit flex flex-col`}>
+            {Object.keys(entities).map((entityId) => {
+              const entity = entities[entityId];
+              return (
+                <HealthBar
+                  character={entity}
+                  percentage={entity.health / entity.maxHealth}
+                  enemy
+                />
+              );
+            })}
           </div>
         </span>
-        <Center>
-          <Box
-            // style={{ height: "75vh", width: "100vw" }}
-            dangerouslySetInnerHTML={{
-              __html: `<iframe
+      </div>
+      <div
+        // style={{ height: "75vh", width: "100vw" }}
+        dangerouslySetInnerHTML={{
+          __html: `<iframe
             id="my-iframe"
-            style="border: 0; width: 75vh; height: 75vh"
+            style="border: 0; width: 100vw; height: 90vh"
             allow="camera;microphone;gyroscope;accelerometer;"
             src="demoARexperience.html">
             </iframe>`,
-            }}
-          />
-        </Center>
-      </Container>
-    </>
+        }}
+      />
+    </div>
   );
 };
 

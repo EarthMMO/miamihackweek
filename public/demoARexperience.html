@@ -49,12 +49,19 @@
      <a-asset-item preload="auto" class="a-sound" id="goblin_death1Src" src="./goblin_death.mp3" response-type="arraybuffer" sound=0.5></a-asset-item>
      <a-asset-item preload="auto" class="a-sound" id="goblin_spawn1Src" src="./goblin_spawn.mp3" response-type="arraybuffer" sound=0.5></a-asset-item> 
 
-      <a-asset-item id="Mine_high" src="./mine_High.glb"></a-asset-item>
+      <!-- <a-asset-item id="Mine_high" src="./mine_High.glb"></a-asset-item>
       <a-asset-item id="Mine_medium" src="./mine_Medium.glb"></a-asset-item>
       <a-asset-item id="Mine_low" src="./mine_Low.glb"></a-asset-item>
       <a-asset-item id="Mine_empty" src="./mine_holder.glb"></a-asset-item>
-      <a-asset-item id="coin_model" src="./Coin.glb"></a-asset-item>
-      <a-asset-item id="goblin" src="./goblin.glb"></a-asset-item>
+      <a-asset-item id="coin_model" src="./Coin.glb"></a-asset-item> -->
+      <a-asset-item id="goblin" src="./goblin.glb"></a-asset-item> 
+      <a-asset-item id="goblin_m1" src="./goblin_minion.glb"></a-asset-item>
+      <a-asset-item id="goblin_m2" src="./goblin_minion.glb"></a-asset-item>
+      <a-asset-item id="goblin_m3" src="./goblin_minion.glb"></a-asset-item>
+      <a-asset-item id="goblin_m4" src="./goblin_minion.glb"></a-asset-item>
+      <a-asset-item id="Goblin_shield" src="./cyber_orb.glb"></a-asset-item>
+
+
       <a-asset-item id="Sword" src="./sword.glb"></a-asset-item>
       <a-asset-item id="Fireball" src="./fireball.glb"></a-asset-item>
     </a-assets>
@@ -86,6 +93,55 @@
     position="0 0 -20"
     shadow="cast: true; receive: false;">
     </a-entity>
+
+    <a-entity
+    id="goblin_shield"
+    gltf-model="#Goblin_shield"
+    scale="12 12 12"
+    animation-mixer="clip: *; loop: repeat"
+    position="0 4 -30"
+    shadow="cast: true; receive: false;">
+    </a-entity>
+
+    <a-entity
+    id="goblin_min1"
+    gltf-model="#goblin_m1"
+    class="cantap"
+    scale=".7 .7 .7"
+    animation-mixer="clip: Idle; loop: repeat"
+    position="-12 0 -20"
+    shadow="cast: true; receive: false;">
+    </a-entity>
+
+    <a-entity
+    id="goblin_min2"
+    gltf-model="#goblin_m2"
+    class="cantap"
+    scale=".7 .7 .7"
+    animation-mixer="clip: Idle; loop: repeat"
+    position="-4 0 -15"
+    shadow="cast: true; receive: false;">
+    </a-entity>
+
+    <a-entity
+    id="goblin_min3"
+    gltf-model="#goblin_m3"
+    class="cantap"
+    scale=".7 .7 .7"
+    animation-mixer="clip: Idle; loop: repeat"
+    position="4 0 -15"
+    shadow="cast: true; receive: false;">
+    </a-entity>
+
+    <a-entity
+    id="goblin_min4"
+    gltf-model="#goblin_m4"
+    class="cantap"
+    scale=".7 .7 .7"
+    animation-mixer="clip: Idle; loop: repeat"
+    position="12 0 -20"
+    shadow="cast: true; receive: false;">
+    </a-entity>
     <!-- 
     <a-entity
     id="sword"
@@ -97,7 +153,7 @@
     </a-entity>
      -->
     
-    <a-entity 
+    <!-- <a-entity 
     id="mine_high"
     gltf-model="#Mine_high"
     class="cantap"
@@ -131,12 +187,6 @@
       scale="0.04 0.04 0.04"
       position="0 0 -20"
       shadow="cast: true; receive: false;">
-    </a-entity>
- 
-
-    <!-- <a-entity
-      id="textbox"
-      text="value: Click the Box!;">
     </a-entity> -->
 
       <a-entity
@@ -146,7 +196,7 @@
         scale="1000 2 1000"
         position="0 -1 0"
         shadow="cast: false"
-      >
+      > 
       </a-entity>
     </a-scene>
   </body>
