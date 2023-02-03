@@ -182,8 +182,27 @@ AFRAME.registerComponent("spotxcomponent", {
       spread_z =
         Math.random() * 2 * world.fireball.spread_z - world.fireball.spread_z;
 
-      //console.log("spread y:", spread_y);
-      //console.log("spread z:", spread_z);
+      // Add the textbox to the attack
+      const new_TextBox = document.createElement('a-entity');
+      new_TextBox.setAttribute(
+        'text',
+        `anchor:center;baseline:center;align:center;wrapCount:20;transparent:true;opacity:0.7;color:#FAD902;value:-${world.textbox_value}`
+      );
+      new_TextBox.setAttribute(
+        'geometry',
+        'primitive:plane;width:3;height:auto'
+      );
+      new_TextBox.setAttribute(
+        'material',
+        'color:#444444;transparent:true;opacity:0'
+      );
+      
+      new_TextBox.setAttribute('position', `${B.x} ${B.y + 8 + spread_y} ${B.z + spread_z}`);
+      new_TextBox.setAttribute('visible', 'false');
+      new_TextBox.setAttribute('scale', '4 4 4');
+
+      // Add text box to scene.
+      this.el.sceneEl.appendChild(new_TextBox);
 
       fireball.setAttribute("animation__first", {
         property: "position",
@@ -218,7 +237,27 @@ AFRAME.registerComponent("spotxcomponent", {
           goblinHit_audio.stopSound();
           goblinHit_audio.playSound();
         }
+        
 
+        // Display text points
+        new_TextBox.setAttribute('visible', 'true');
+
+        // Add Animation
+        new_TextBox.setAttribute('animation__textFirst', {
+          property: 'position',
+          to: `${B.x} ${B.y + 12 + spread_y} ${B.z + spread_z + 5}`,
+          dur: '1000',
+          easing: 'easeInOutQuad',
+          loop: 'false',
+          autoplay: 'true',
+          dir: 'alternate',
+        });
+
+        // Remove After animation
+        new_TextBox.addEventListener('animationcomplete__textFirst', () => {
+          new_TextBox.setAttribute('visible', 'false'); // remove from display
+          new_TextBox.parentNode.removeChild(new_TextBox); // Remove from Aframe
+        });
 
 
         // remove fireball after animation.
@@ -527,6 +566,7 @@ AFRAME.registerComponent("spotxcomponent", {
       moving_timer: 0,
       moving_time: 0.5,
       move_stage: true,
+      textbox_value: "86",
       stage_list: {
         1: {
           goblin_alive: true,
