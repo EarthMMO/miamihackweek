@@ -285,7 +285,7 @@ AFRAME.registerComponent("spotxcomponent", {
         // Add Animation
         new_TextBox.setAttribute('animation__textFirst', {
           property: 'position',
-          to: `${B.x} ${B.y + 16 + spread_y} ${B.z + spread_z + 8}`,
+          to: `${B.x} ${B.y + 16 + spread_y} ${B.z + spread_z + 18}`,
           dur: '1000',
           easing: 'easeInOutQuad',
           loop: 'false',
