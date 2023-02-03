@@ -18,7 +18,7 @@ localhost-key.pem
 localhost.pem
 
 # environment variables
-.env 
+.env
 .env/*
 
 # Visual Studio Code
@@ -31,3 +31,5 @@ localhost.pem
 
 # Misc
 .DS_Store
+
+package-lock.json

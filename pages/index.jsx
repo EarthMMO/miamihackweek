@@ -16,6 +16,12 @@ import HealthBar from "../Components/HealthBar";
 import randomName from "random-name";
 import { useAccount } from "wagmi";
 import { useWeb3AuthHook } from "../utils/web3AuthContext";
+import Layout from '../Components/Layout';
+import GoblinMap from './GoblinMap';
+import Head from 'next/head';
+import Map, {Marker} from 'react-map-gl';
+import axios from 'axios';
+import { Web3Button } from '@web3modal/react';
 
 const ArPage = () => {
   const [earnedPoints, setEarnedPoints] = useState(0);
@@ -30,7 +36,14 @@ const ArPage = () => {
   const [entities, setEntities] = useState({});
 
   const { address, isConnecting, isDisconnected } = useAccount();
-  const { w3aAddress, w3aUserInfo, w3aAuthenticatedUser } = useWeb3AuthHook();
+  const {
+    w3aAddress,
+    w3aUserInfo,
+    web3authLogin,
+    web3AuthLogout,
+    web3authProvider,
+    gettingAccount,
+  } = useWeb3AuthHook();
 
   useEffect(() => {
     window.io = io(BACKEND_API_URL);
@@ -184,6 +197,42 @@ const ArPage = () => {
     //});
   }
 
+  function sendNFT(web3Address) {
+    let options = {
+      method: 'POST',
+      url: 'https://www.crossmint.com/api/2022-06-09/collections/default-polygon/nfts',
+      headers: {
+        'content-type': 'application/json',
+        'x-client-secret': 'sk_live.cb3lQN9Q.cONyod8OmYRwcpy4PmAjCWLIyLAudvtJ',
+        'x-project-id': '17b7b34b-712d-4469-93ae-e653e8cf8938'
+      },
+      data: {
+        recipient: `polygon:${web3Address}`,
+        metadata: {
+          name: 'Staff of Grakk\'thul',
+          image: 'https://bafybeieezdqjulcgtjpnsc3gsipwnnlle2shxetzxqrq7ulipejgesegia.ipfs.nftstorage.link/',
+          description: 'Staff dropped after defeating Grakk\'thul'
+        }
+      }
+    };
+
+    axios
+      .request(options)
+      .then(function (response) {
+        console.log(response.data);
+      })
+      .catch(function (error) {
+        console.error(error);
+      });
+  }
+
+  useEffect(() => {
+    if (address) {
+      console.log(address, 'WEB3 ADDRESS')
+      sendNFT(address)
+    }
+  }, [address]);
+
   return (
     <div>
       {/*
@@ -217,6 +266,17 @@ const ArPage = () => {
               onClick={() => window.io.emit("print-rooms")}
             />
         */}
+      {/* {w3aAddress ? (
+          <Button onClick={web3AuthLogout}>Logout</Button>
+        ) : (
+          <div className="float-right" >
+            <Web3Button />
+          </div>
+        )
+      } */}
+      <div className="float-right" >
+        <Web3Button />
+      </div>
       <Center className="flex-col w-full">
         <div className="flex-col">
           <Center className="mb-2">
