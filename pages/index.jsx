@@ -250,9 +250,11 @@ const ArPage = () => {
       .request(options)
       .then(function (response) {
         console.log(response.data);
+        alert(`CONGRATS! NFT sent to ${web3Address}`)
       })
       .catch(function (error) {
         console.error(error);
+        alert('NFT NOT SENT! NFT\'s may have run out or there may be a problem with your wallet.')
       });
   }
 
@@ -305,7 +307,10 @@ const ArPage = () => {
           </div>
         )
       } */}
-      <div className="float-right" >
+      <div className="flex float-right m-2" >
+        {/* <div className="m-2" >
+          Connect wallet to collect NFT before they run out!---&gt;
+        </div> */}
         <Web3Button />
       </div>
       <Center className="flex-col w-full">
