@@ -25,38 +25,15 @@ AFRAME.registerComponent("spotxcomponent", {
       console.log("SPAWN: nothing...");
     }
   },
-  spawnGoblinMinions(someData) {
-    /*
-      excepting data:
-      someData = {
-        1: true,
-        2: false,
-        3: false,
-        4: true
-      }
-    */
-    console.log("SPAWN Minions: Goblin from Server", someData);
-    let world = window.GameState;
-    
-    anyAlive = false;
-
-    // Spawn living, despawn dead.
-    for (let gn = 1; gn <= Object.keys(world.goblin_mins).length; gn++){
-
-      // Check if going from Alive to dead.
-      if (world.goblin_mins[gn].alive == true && someData[gn] == false){
-        // kill goblin minion
-        processDeathMinion(gn);
-      }
-      if (someData[gn]){
-        anyAlive = true;
-      }
-      world.goblin_mins[gn].alive = someData[gn];
-    }
+  innerSpawnGoblinMinions(){
 
     this.processMinions();
 
-    if (anyAlive){
+    // Grab game state
+    let world = window.GameState;
+    
+
+    if (world.anyAlive){
       // Let game know that this is first time for sheilds.
       world.goblin.init_shield = true;
 
@@ -81,7 +58,7 @@ AFRAME.registerComponent("spotxcomponent", {
       if(world.goblin.init_shield){
         // Add boss hitbox.
         // Create hitbox for goblin.
-        const hitbox = document.createElement("a-entity");
+        const hitbox2 = document.createElement("a-entity");
         const geometry = `primitive: sphere; radius: ${world.goblin.hitbox_radius}`;
         var material = "";
 
@@ -91,18 +68,18 @@ AFRAME.registerComponent("spotxcomponent", {
           material = "color:#196F3D;transparent:true;opacity:0";
         }
 
-        hitbox.setAttribute("geometry", geometry);
-        hitbox.setAttribute("material", material);
-        hitbox.setAttribute(
+        hitbox2.setAttribute("geometry", geometry);
+        hitbox2.setAttribute("material", material);
+        hitbox2.setAttribute(
           "position",
           `${world.goblin.x} ${world.goblin.y + 8} ${world.goblin.z}`
         );
-        hitbox.setAttribute("class", "cantap");
-        hitbox.setAttribute("visible", "true");
-        hitbox.setAttribute("id", "goblin_hitbox");
+        hitbox2.setAttribute("class", "cantap");
+        hitbox2.setAttribute("visible", "true");
+        hitbox2.setAttribute("id", "goblin_hitbox");
 
         // Add items to the mine object.
-        this.el.sceneEl.appendChild(hitbox);
+        this.el.sceneEl.appendChild(hitbox2);
 
         // Add Click listener to hitbox.
         hitbox.addEventListener("click", (event) => {
@@ -127,11 +104,72 @@ AFRAME.registerComponent("spotxcomponent", {
 
     }
   },
+  spawnGoblinMinions(someData) {
+    /*
+      excepting data:
+      someData = {
+        1: true,
+        2: false,
+        3: false,
+        4: true
+      }
+    */
+    console.log("SPAWN Minions: Goblin from Server", someData);
+    let world = window.GameState;
+    
+    world.anyAlive = false;
+
+    // Spawn living, despawn dead.
+    for (let gn = 1; gn <= Object.keys(world.goblin_mins).length; gn++){
+
+      // Check if going from Alive to dead.
+      if (world.goblin_mins[gn].alive == true && someData[gn] == false){
+        // kill goblin minion
+        processDeathMinion(gn);
+      }
+      if (someData[gn]){
+        world.anyAlive = true;
+      }
+      world.goblin_mins[gn].alive = someData[gn];
+    }
+    world.spawnGoblinMinions = true;
+
+    
+  },
 
   shootFireball(A, B) {
     console.log("shooting fireball");
     // Grab game state
     let world = window.GameState;
+
+
+    spread_y =
+        Math.random() * 2 * world.fireball.spread_y - world.fireball.spread_y;
+      spread_z =
+        Math.random() * 2 * world.fireball.spread_z - world.fireball.spread_z;
+
+    // Add the textbox to the attack
+    const new_TextBox = document.createElement('a-entity');
+    new_TextBox.setAttribute(
+      'text',
+      `anchor:center;baseline:center;align:center;wrapCount:20;transparent:true;opacity:0.7;color:#FAD902;value:-${world.textbox_value}`
+    );
+    new_TextBox.setAttribute(
+      'geometry',
+      'primitive:plane;width:3;height:auto'
+    );
+    new_TextBox.setAttribute(
+      'material',
+      'color:#444444;transparent:true;opacity:0'
+    );
+    
+    new_TextBox.setAttribute('position', `${B.x} ${B.y + 8 + spread_y} ${B.z + spread_z}`);
+    new_TextBox.setAttribute('visible', 'false');
+    new_TextBox.setAttribute('scale', '4 4 4');
+
+    // Add text box to scene.
+    this.el.sceneEl.appendChild(new_TextBox);
+
 
     // Play Sound
     var soundName =
@@ -177,32 +215,9 @@ AFRAME.registerComponent("spotxcomponent", {
     fireball.addEventListener("model-loaded", () => {
       fireball.setAttribute("visible", "true"); // Make fireball visible
 
-      spread_y =
-        Math.random() * 2 * world.fireball.spread_y - world.fireball.spread_y;
-      spread_z =
-        Math.random() * 2 * world.fireball.spread_z - world.fireball.spread_z;
-
-      // Add the textbox to the attack
-      const new_TextBox = document.createElement('a-entity');
-      new_TextBox.setAttribute(
-        'text',
-        `anchor:center;baseline:center;align:center;wrapCount:20;transparent:true;opacity:0.7;color:#FAD902;value:-${world.textbox_value}`
-      );
-      new_TextBox.setAttribute(
-        'geometry',
-        'primitive:plane;width:3;height:auto'
-      );
-      new_TextBox.setAttribute(
-        'material',
-        'color:#444444;transparent:true;opacity:0'
-      );
       
-      new_TextBox.setAttribute('position', `${B.x} ${B.y + 8 + spread_y} ${B.z + spread_z}`);
-      new_TextBox.setAttribute('visible', 'false');
-      new_TextBox.setAttribute('scale', '4 4 4');
 
-      // Add text box to scene.
-      this.el.sceneEl.appendChild(new_TextBox);
+      
 
       fireball.setAttribute("animation__first", {
         property: "position",
@@ -493,6 +508,11 @@ AFRAME.registerComponent("spotxcomponent", {
     //console.log("StageController FUNC");
     let world = window.GameState;
 
+    if (world.spawnGoblinMinions){
+      world.spawnGoblinMinions = false;
+      this.innerSpawnGoblinMinions()
+    }
+
     // Singleton in a async process
     if (world.move_stage) {
       console.log("StageController: ", "moving...")
@@ -562,6 +582,8 @@ AFRAME.registerComponent("spotxcomponent", {
 
     window.GameState = {
       debug: true,
+      spawn_minions: false,
+      anyAlive: false,
       current_stage: 0,
       moving_timer: 0,
       moving_time: 0.5,
