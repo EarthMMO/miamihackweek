@@ -309,12 +309,6 @@ const ArPage = () => {
           </div>
         )
       } */}
-      <div className="flex float-right m-2">
-        {/* <div className="m-2" >
-          Connect wallet to collect NFT before they run out!---&gt;
-        </div> */}
-        <Web3Button />
-      </div>
       <Center className="flex-col w-full">
         <div className="flex-col">
           <Center className="mb-2">
@@ -329,6 +323,20 @@ const ArPage = () => {
             />
           </Center>
         </div>
+        <div
+          className={`${
+            entities[0]?.isDead ? "" : "hidden"
+          } flex float-right mb-2`}
+        >
+          <Web3Button />
+        </div>
+        {entities[0]?.isDead && (
+          <b>
+            {userId}, you defeated the mischievous Grakk'thul and saved Miami!
+            <br />
+            Claim the [Staff of Grakk'thul] NFT by connecting your wallet!
+          </b>
+        )}
       </Center>
       <div className="absolute w-full justify-between pointer-events-none">
         {/*
