@@ -30,7 +30,7 @@ const ArPage = () => {
   const [gamerOver, setGameOver] = useState(false);
   const IFRAME_ID = "my-iframe";
 
-  const [name, setName] = useState("");
+  const [userId, setUserId] = useState("");
   const [rooms, setRooms] = useState(null);
   const [characters, setCharacters] = useState({});
   const [entities, setEntities] = useState({});
@@ -107,38 +107,49 @@ const ArPage = () => {
           }
         );
     });
+    window.io.on("reset-gamestate", (entities) => {
+      console.log("reset-gamestate", entities);
+      setEntities(entities);
+      document
+        .querySelector("#my-iframe")
+        .contentWindow.AFRAME.components.spotxcomponent.Component.prototype.spawnGoblin(
+          true
+        );
+      document
+        .querySelector("#my-iframe")
+        .contentWindow.AFRAME.components.spotxcomponent.Component.prototype.spawnGoblinMinions(
+          {
+            1: false,
+            2: false,
+            3: false,
+            4: false,
+          }
+        );
+    });
 
-    let name = prompt("What should we call you, adventurer?");
-    if (!name) {
-      name = randomName.first();
+    let userId = prompt("What should we call you, adventurer?");
+    if (!userId) {
+      userId = randomName.first();
     }
-    window.io.emit("identity", name);
-    window.io.emit("subscribe", "ONE", [name]);
+    setUserId(userId);
+    window.io.emit("identity", userId);
+    window.io.emit("subscribe", "ONE", [userId]);
     window.io.emit("sync-gamestate", (response) => {
       console.log("CHARACTERS", response.characters);
       console.log("ENTITIES", response.entities);
       setCharacters(response.characters);
       setEntities(response.entities);
     });
-  }, []);
 
-  useEffect(() => {
-    window.XRIFrame.registerXRIFrame(IFRAME_ID);
-    return () => {
-      window.XRIFrame.deregisterXRIFrame();
-    };
-  }, []);
-
-  useEffect(() => {
     //iFrame to React communication handler
     const attackBossHandler = (event) => {
       console.log("Grakk'thul was attacked!", event.detail.attack);
-      attackEntity(0);
+      attackEntity(userId, 0);
     };
     const attackMinionHandler = (event) => {
       const entityId = event.detail.attack;
       console.log(`Minion ${entityId} was attacked!`);
-      attackEntity(entityId);
+      attackEntity(userId, entityId);
     };
 
     const gameStart = () => {
@@ -153,8 +164,16 @@ const ArPage = () => {
 
     //iFrame to React communication handler cleanup
     return () => {
-      window.removeEventListener("attack", handler);
+      window.removeEventListener("attack", attackBossHandler);
+      window.removeEventListener("attackMin", attackMinionHandler);
       window.removeEventListener("gameStart", gameStart);
+    };
+  }, []);
+
+  useEffect(() => {
+    window.XRIFrame.registerXRIFrame(IFRAME_ID);
+    return () => {
+      window.XRIFrame.deregisterXRIFrame();
     };
   }, []);
 
@@ -187,9 +206,9 @@ const ArPage = () => {
     //});
   }
 
-  function attackEntity(entityId) {
+  function attackEntity(userId, entityId) {
     const CHARACTER_DAMAGE = 86;
-    window.io.emit("attackEntity", entityId, CHARACTER_DAMAGE);
+    window.io.emit("attackEntity", userId, entityId, CHARACTER_DAMAGE);
     //setEntities((prevEntities) => {
     //  const optimisticUpdate = { ...prevEntities };
     //  optimisticUpdate[entityId].health -= CHARACTER_DAMAGE;
@@ -235,6 +254,7 @@ const ArPage = () => {
 
   return (
     <div>
+      {"YOUR NAME IS " + userId}
       {/*
       <Link href="/">
         <IconButton size={"md"} icon={<ArrowBackIcon />}>
@@ -285,14 +305,7 @@ const ArPage = () => {
           <Center className="mb-2">
             <Button
               label={"Give Grakk'thul a Max Potion 🧪"}
-              onClick={() => {
-                window.io.emit("reset-gamestate");
-                document
-                  .querySelector("#my-iframe")
-                  .contentWindow.AFRAME.components.spotxcomponent.Component.prototype.spawnGoblin(
-                    true
-                  );
-              }}
+              onClick={() => window.io.emit("reset-gamestate")}
             />
           </Center>
         </div>
