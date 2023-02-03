@@ -25,7 +25,22 @@ AFRAME.registerComponent("spotxcomponent", {
       console.log("SPAWN: nothing...");
     }
   },
+  otherPlayerAttack(data){
+    /*
+      data = {
+        0: true, // Boss
+        1: false,
+        2: false,
+        3: false,
+        4: false
+      }
 
+    */
+    let world = window.GameState;
+    
+    world.processOtherAttack = data;
+    world.doProcessOther = true;
+  },
   attackPoints(points){
     let world = window.GameState;
     world.textbox_value = points;
@@ -518,6 +533,9 @@ AFRAME.registerComponent("spotxcomponent", {
       this.innerSpawnGoblinMinions()
     }
 
+    // do other players attacks
+    if(world.d)
+
     // Singleton in a async process
     if (world.move_stage) {
       console.log("StageController: ", "moving...")
@@ -594,6 +612,14 @@ AFRAME.registerComponent("spotxcomponent", {
       moving_time: 0.5,
       move_stage: true,
       textbox_value: "86",
+      doProcessOther: false,
+      processOtherAttack : {
+        0: false,
+        1: false,
+        2: false,
+        3: false,
+        4: false
+      },
       stage_list: {
         1: {
           goblin_alive: true,
