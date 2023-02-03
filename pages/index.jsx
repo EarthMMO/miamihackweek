@@ -175,7 +175,7 @@ const ArPage = () => {
   }
 
   function attackEntity(entityId) {
-    const CHARACTER_DAMAGE = 860;
+    const CHARACTER_DAMAGE = 86;
     window.io.emit("attackEntity", entityId, CHARACTER_DAMAGE);
     //setEntities((prevEntities) => {
     //  const optimisticUpdate = { ...prevEntities };
