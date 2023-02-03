@@ -121,7 +121,7 @@ AFRAME.registerComponent("spotxcomponent", {
         // Add Shield
         const shield = document.getElementById("goblin_shield");
         shield.setAttribute("visible", "false");
-        shield.parentNode.removeChild(shield);
+        //shield.parentNode.removeChild(shield);
       }
       
 
