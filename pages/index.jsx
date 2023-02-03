@@ -61,11 +61,24 @@ const ArPage = () => {
     window.io.on("entities-death", (deadEntityId, entities) => {
       console.log(`${entities[deadEntityId].name} is dead!`);
       setEntities(entities);
-      document
-        .querySelector("#my-iframe")
-        .contentWindow.AFRAME.components.spotxcomponent.Component.prototype.spawnGoblin(
-          false
-        );
+      if (deadEntityId === 0) {
+        document
+          .querySelector("#my-iframe")
+          .contentWindow.AFRAME.components.spotxcomponent.Component.prototype.spawnGoblin(
+            false
+          );
+      } else {
+        document
+          .querySelector("#my-iframe")
+          .contentWindow.AFRAME.components.spotxcomponent.Component.prototype.spawnGoblinMinions(
+            {
+              1: !entities[1].isDead,
+              2: !entities[2].isDead,
+              3: !entities[3].isDead,
+              4: !entities[4].isDead,
+            }
+          );
+      }
     });
     window.io.on("spawn-adds", (entities) => {
       console.log("spawn-adds", entities);
